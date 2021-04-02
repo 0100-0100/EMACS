@@ -210,7 +210,7 @@
 (add-to-list 'load-path "~/.emacs.d/lisp/") ;; <--- Uncomment this line
 
 ;; 01. Loads Indent-guide package.
-;; Use the command below for downloading the indent higlight file:
+;; Use the command below for downloading the indent highlight file:
 ;;
 ;;     wget https://github.com/zk-phi/indent-guide/raw/master/indent-guide.el -P ~/.emacs.d/lisp/indent-guide.el
 ;;
