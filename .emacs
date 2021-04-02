@@ -98,6 +98,13 @@
 ;; Bind f7 key to rectangle selection. - - - - - - - - - - - - - - - - - - - ;;
 (global-set-key [f7] 'cua-rectangle-mark-mode)
 
+;; Bind f8 key to re-load file from disc.
+(defun revert-buffer-no-confirm ()
+    "Revert buffer without confirmation."
+    (interactive)
+    (revert-buffer :ignore-auto :noconfirm))
+(global-set-key [f8] 'revert-buffer-no-confirm)
+
 ;; Bind C-x C-<up> to move line up - - - - - - - - - - - - - - - - - - - - - ;;
 (defun move-line-up ()
   "Move up the current line."
@@ -205,14 +212,14 @@
 ;; 01. Loads Indent-guide package.
 ;; Use the command below for downloading the indent higlight file:
 ;;
-;;     wget https://github.com/zk-phi/indent-guide/raw/master/indent-guide.el -P ~/.emacs.d/lisp
+;;     wget https://github.com/zk-phi/indent-guide/raw/master/indent-guide.el -P ~/.emacs.d/lisp/indent-guide.el
 ;;
-;;(load "indent-guide") ;; Uncomment this line
+(load "indent-guide")
 ;;
 ;; Sets color of indentation-guide character.
 ;;
-;;(set-face-foreground 'indent-guide-face "color-243")
-;; (indent-guide-global-mode) ;; Uncomment this line.
+(set-face-foreground 'indent-guide-face "color-243")
+(indent-guide-global-mode)
 
 ;; To enable completion install the package running the command:
 ;;  M-x list-packages and find the company package.
