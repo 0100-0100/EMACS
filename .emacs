@@ -207,12 +207,12 @@
 ;;
 ;;     wget https://github.com/zk-phi/indent-guide/raw/master/indent-guide.el -P ~/.emacs.d/lisp
 ;;
-(load "indent-guide")
+;;(load "indent-guide") ;; Uncomment this line
 ;;
 ;; Sets color of indentation-guide character.
 ;;
-(set-face-foreground 'indent-guide-face "color-243")
-(indent-guide-global-mode)
+;;(set-face-foreground 'indent-guide-face "color-243")
+;; (indent-guide-global-mode) ;; Uncomment this line.
 
 ;; To enable completion install the package running the command:
 ;;  M-x list-packages and find the company package.
