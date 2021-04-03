@@ -37,8 +37,8 @@
 (setq whitespace-line-column 80) ;; Column highlight number limit. - - - - - ;;
 
 ;; Turn on whitespace mode when entering a c-type or python file. - - - - - -;;
-(add-hook 'c-mode-common-hook 'whitespace-mode)
-(add-hook 'python-mode 'whitespace-mode)
+(add-hook 'c-mode-common-hook 'whitespace-mode t)
+(add-hook 'python-mode-hook 'whitespace-mode t)
 
 ;; Disables auto-save. - - - - - - - - - - - - - - - - - - - - - - - - - - - ;;
 (setq auto-save-default nil)
@@ -52,11 +52,14 @@
 ;; Highlights parenthesis and brackets. - - - - - - - - - - - - - - - - - - -;;
 (show-paren-mode t)
 
+;; Higlights current line.
+(global-hl-line-mode t)
+
 ;; Remembers cursor's last position. - - - - - - - - - - - - - - - - - - - - ;;
 (if (version< emacs-version "25.0")
-        (progn
-                (require 'saveplace)
-                      (setq-default save-place t))
+    (progn
+      (require 'saveplace)
+      (setq-default save-place t))
   (save-place-mode 1))
 
 ;; UTF-8 as default encoding. - - - - - - - - - - - - - - - - - - - - - - - -;;
@@ -78,6 +81,7 @@
 ;; Sets tabulation spaces. - - - - - - - - - - - - - - - - - - - - - - - - - ;;
 (setq-default indent-tabs-mode nil)
 (setq-default js-indent-level 2)
+(setq-default python-indent-offset 4)
 
 ;; Makes tab key always call an indent command. - - - - - - - - - - - - - - -;;
 (setq-default tab-always-indent t)
@@ -91,14 +95,14 @@
 ;; Make tab key do indent first then completion. - - - - - - - - - - - - - - ;;
 (setq-default tab-always-indent 'complete)
 
-;; Bind f5 to comment and f6 to uncomment region. - - - - - - - - - - - - - -;;
+;; Bind [f5] to comment and [f6] to uncomment region. - - - - - - - - - - - -;;
 (global-set-key [f5] 'comment-region)
 (global-set-key [f6] 'uncomment-region)
 
-;; Bind f7 key to rectangle selection. - - - - - - - - - - - - - - - - - - - ;;
+;; Bind [f7] key to rectangle selection. - - - - - - - - - - - - - - - - - - ;;
 (global-set-key [f7] 'cua-rectangle-mark-mode)
 
-;; Bind f8 key to re-load file from disc.
+;; Bind [f8] key to re-load file from disc.
 (defun revert-buffer-no-confirm ()
     "Revert buffer without confirmation."
     (interactive)
@@ -147,7 +151,9 @@
  '(company-idle-delay 0.05)
  '(company-minimum-prefix-length 1)
  '(menu-bar-mode nil)
- '(package-selected-packages (quote (puppet-mode gnu-elpa-keyring-update company))))
+ '(package-selected-packages
+   (quote
+    (flycheck-clang-tidy puppet-mode gnu-elpa-keyring-update company))))
 
 ;; ------------------------------------------------------------------------- ;;
 ;;                               Custom faces.                               ;;
@@ -183,6 +189,7 @@
  '(font-lock-string-face ((t (:foreground "#FFA07A"))))
  '(font-lock-type-face ((t (:foreground "#98FB98"))))
  '(font-lock-variable-name-face ((t (:foreground "#FFD787"))))
+ '(highlight ((t (:background "color-235"))))
  '(link ((t (:foreground "color-178" :underline t))))
  '(link-visited ((t (:inherit link :foreground "color-94"))))
  '(linum ((t (:inherit (shadow default) :foreground "color-243"))))
@@ -215,17 +222,21 @@
 ;;     wget https://github.com/zk-phi/indent-guide/raw/master/indent-guide.el -P ~/.emacs.d/lisp/indent-guide.el
 ;;
 (load "indent-guide")
-;;
 ;; Sets color of indentation-guide character.
-;;
 (set-face-foreground 'indent-guide-face "color-243")
 (indent-guide-global-mode)
 
 ;; To enable completion install the package running the command:
-;;  M-x list-packages and find the company package.
+;;
+;;    M-x install-packages ENTER company.
 ;;
 ;; 02. Enables complete-anything on all buffers.
 (add-hook 'after-init-hook 'global-company-mode) ;; <---Uncomment this line.
+
+;; To enable FLycheck syntax highlighting tun the command:
+;;
+;;    M-x install package
+
 
 ;; Adds Melpa packages
 (require 'package)
