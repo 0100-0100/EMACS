@@ -207,27 +207,27 @@
 ;; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ;;
 ;;                                                                           ;;
 ;; Tells emacs where the elisp lib dir is.
-(add-to-list 'load-path "~/.emacs.d/lisp/") ;; <--- Uncomment this line
+;;(add-to-list 'load-path "~/.emacs.d/lisp/") ;; <--- Uncomment this line
 
 ;; 01. Loads Indent-guide package.
 ;; Use the command below for downloading the indent highlight file:
 ;;
 ;;     wget https://github.com/zk-phi/indent-guide/raw/master/indent-guide.el -P ~/.emacs.d/lisp/indent-guide.el
 ;;
-(load "indent-guide")
+;;(load "indent-guide")
 ;;
 ;; Sets color of indentation-guide character.
 ;;
-(set-face-foreground 'indent-guide-face "color-243")
-(indent-guide-global-mode)
+;;(set-face-foreground 'indent-guide-face "color-243")
+;;(indent-guide-global-mode)
 
 ;; To enable completion install the package running the command:
 ;;  M-x list-packages and find the company package.
 ;;
 ;; 02. Enables complete-anything on all buffers.
-(add-hook 'after-init-hook 'global-company-mode) ;; <---Uncomment this line.
+;;(add-hook 'after-init-hook 'global-company-mode) ;; <---Uncomment this line.
 
 ;; Adds Melpa packages
-(require 'package)
-(add-to-list 'package-archives '("melpa-stable" . "https://stable.melpa.org/packages/") t)
-(package-initialize)
+;;(require 'package)
+;;(add-to-list 'package-archives '("melpa-stable" . "https://stable.melpa.org/packages/") t)
+;;(package-initialize)
