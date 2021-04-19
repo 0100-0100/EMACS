@@ -33,7 +33,7 @@
 
 ;; Highlights whitespaces and lines over 80 characters. - - - - - - - - - - -;;
 (require 'whitespace)
-(setq whitespace-style '(face empty tabs lines-tail trailing))
+(setq whitespace-style '(face empty lines-tail trailing))
 (setq whitespace-line-column 80) ;; Column highlight number limit. - - - - - ;;
 
 ;; Turn on whitespace mode when entering a c-type or python file. - - - - - -;;
