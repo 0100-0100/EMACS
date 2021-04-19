@@ -39,7 +39,6 @@
 ;; Turn on whitespace mode when entering a c-type or python file. - - - - - -;;
 (add-hook 'c-mode-common-hook 'whitespace-mode t)
 (add-hook 'python-mode-hook 'whitespace-mode t)
-
 ;; Disables auto-save. - - - - - - - - - - - - - - - - - - - - - - - - - - - ;;
 (setq auto-save-default nil)
 
@@ -76,10 +75,11 @@
 (setq linum-format "%3d\u2502 ")
 
 ;; Set default C style. - - - - - - - - - - - - - - - - - - - - - - - - - - -;;
+(setq-default indent-tabs-mode t)
+(setq-default tab-width 4)
 (setq c-default-style "linux" c-basic-offset 4)
 
 ;; Sets tabulation spaces. - - - - - - - - - - - - - - - - - - - - - - - - - ;;
-(setq-default indent-tabs-mode nil)
 (setq-default js-indent-level 2)
 (setq-default python-indent-offset 4)
 
@@ -108,6 +108,11 @@
     (interactive)
     (revert-buffer :ignore-auto :noconfirm))
 (global-set-key [f8] 'revert-buffer-no-confirm)
+
+;; Binds for multicursor.
+(global-set-key [f9] 'mc/edit-lines)
+(global-set-key (kbd "<C-f9>") 'mc/edit-ends-of-lines)
+(global-set-key (kbd "<M-f9>") 'mc/edit-beginnings-of-lines)
 
 ;; Bind C-x C-<up> to move line up - - - - - - - - - - - - - - - - - - - - - ;;
 (defun move-line-up ()
@@ -140,6 +145,31 @@
 		    (goto-char (point-min))
 		    (set-buffer-modified-p nil))))
 
+;; Adds colorhiglighting for hex codes in html and css modes.
+(defun xah-syntax-color-hex ()
+  (interactive)
+  (font-lock-add-keywords
+   nil
+   '(("#[[:xdigit:]]\\{3\\}"
+      (0 (put-text-property
+          (match-beginning 0)
+          (match-end 0)
+          'face (list :background
+                      (let* (
+                             (ms (match-string-no-properties 0))
+                             (r (substring ms 1 2))
+                             (g (substring ms 2 3))
+                             (b (substring ms 3 4)))
+                        (concat "#" r r g g b b))))))
+     ("#[[:xdigit:]]\\{6\\}"
+      (0 (put-text-property
+          (match-beginning 0)
+          (match-end 0)
+          'face (list :background (match-string-no-properties 0)))))))
+  (font-lock-flush))
+(add-hook 'css-mode-hook 'xah-syntax-color-hex)
+(add-hook 'html-mode-hook 'xah-syntax-color-hex)
+
 ;; ------------------------------------------------------------------------- ;;
 ;;                             Custom variables.                             ;;
 ;; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ;;
@@ -153,7 +183,7 @@
  '(menu-bar-mode nil)
  '(package-selected-packages
    (quote
-    (flycheck-clang-tidy puppet-mode gnu-elpa-keyring-update company))))
+    (multiple-cursors yasnippet-snippets magit flycheck-clang-tidy puppet-mode gnu-elpa-keyring-update company))))
 
 ;; ------------------------------------------------------------------------- ;;
 ;;                               Custom faces.                               ;;
@@ -193,6 +223,13 @@
  '(link ((t (:foreground "color-178" :underline t))))
  '(link-visited ((t (:inherit link :foreground "color-94"))))
  '(linum ((t (:inherit (shadow default) :foreground "color-243"))))
+ '(magit-diff-added ((t (:background "color-22" :foreground "brightgreen"))))
+ '(magit-diff-added-highlight ((t (:background "color-22" :foreground "brightgreen"))))
+ '(magit-diff-context-highlight ((t (:background "color-236" :foreground "color-250"))))
+ '(magit-diff-hunk-heading-highlight ((t (:background "color-236" :foreground "color-250"))))
+ '(magit-diff-removed ((t (:background "color-52" :foreground "brightred"))))
+ '(magit-diff-removed-highlight ((t (:background "color-52" :foreground "brightred"))))
+ '(magit-section-highlight ((t (:background "color-235"))))
  '(menu ((t nil)))
  '(minibuffer-prompt ((t (:foreground "color-220"))))
  '(mode-line ((t (:foreground "brightwhite" :box (:line-width -1 :color "red" :style released-button)))))
@@ -228,15 +265,21 @@
 
 ;; To enable completion install the package running the command:
 ;;
-;;    M-x install-packages ENTER company.
+;;    M-x install-packages ENT company
 ;;
 ;; 02. Enables complete-anything on all buffers.
 (add-hook 'after-init-hook 'global-company-mode) ;; <---Uncomment this line.
 
-;; To enable FLycheck syntax highlighting tun the command:
+;; To enable tag completion on html files.
 ;;
-;;    M-x install package
-
+;;    M-x install-packages ENT yasnippet
+;;
+;; 03. Enables yasnippet on html.
+(add-to-list 'load-path
+             "~/.emacs.d/elpa/yasnippet-0.14.0")
+(require 'yasnippet)
+(yas-reload-all)
+(add-hook 'html-mode-hook #'yas-minor-mode)
 
 ;; Adds Melpa packages
 (require 'package)
