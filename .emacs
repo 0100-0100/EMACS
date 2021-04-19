@@ -251,35 +251,35 @@
 ;; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ;;
 ;;                                                                           ;;
 ;; Tells emacs where the elisp lib dir is.
-(add-to-list 'load-path "~/.emacs.d/lisp/") ;; <--- Uncomment this line
+;; (add-to-list 'load-path "~/.emacs.d/lisp/") ;; <--- Uncomment this line
 
 ;; 01. Loads Indent-guide package.
 ;; Use the command below for downloading the indent higlight file:
 ;;
 ;;     wget https://github.com/zk-phi/indent-guide/raw/master/indent-guide.el -P ~/.emacs.d/lisp/indent-guide.el
 ;;
-(load "indent-guide")
+;; (load "indent-guide")
 ;; Sets color of indentation-guide character.
-(set-face-foreground 'indent-guide-face "color-243")
-(indent-guide-global-mode)
+;; (set-face-foreground 'indent-guide-face "color-243")
+;; (indent-guide-global-mode)
 
 ;; To enable completion install the package running the command:
 ;;
 ;;    M-x install-packages ENT company
 ;;
 ;; 02. Enables complete-anything on all buffers.
-(add-hook 'after-init-hook 'global-company-mode) ;; <---Uncomment this line.
+;; (add-hook 'after-init-hook 'global-company-mode) ;; <---Uncomment this line.
 
 ;; To enable tag completion on html files.
 ;;
 ;;    M-x install-packages ENT yasnippet
 ;;
 ;; 03. Enables yasnippet on html.
-(add-to-list 'load-path
-             "~/.emacs.d/elpa/yasnippet-0.14.0")
-(require 'yasnippet)
-(yas-reload-all)
-(add-hook 'html-mode-hook #'yas-minor-mode)
+;; (add-to-list 'load-path
+;;              "~/.emacs.d/elpa/yasnippet-0.14.0")
+;; (require 'yasnippet)
+;; (yas-reload-all)
+;; (add-hook 'html-mode-hook #'yas-minor-mode)
 
 ;; Adds Melpa packages
 (require 'package)
