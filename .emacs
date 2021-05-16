@@ -142,7 +142,7 @@
 		    (goto-char (point-min))
 		    (set-buffer-modified-p nil))))
 
-;; Adds colorhiglighting for hex codes in html and css modes.
+;; Adds colorhiglighting for hex codes in html and css modes. - - - - - - - - ;;
 (defun xah-syntax-color-hex ()
   (interactive)
   (font-lock-add-keywords
@@ -166,6 +166,7 @@
   (font-lock-flush))
 (add-hook 'css-mode-hook 'xah-syntax-color-hex)
 (add-hook 'html-mode-hook 'xah-syntax-color-hex)
+(add-hook 'js2-mode-hook 'xah-syntax-color-hex)
 
 ;; Highlight the number on the line numbers. - - - - - - - - - - - - - - - - ;;
 (require 'hl-line)
@@ -199,9 +200,10 @@
     ad-do-it))
 (ad-activate 'linum-update)
 
-;; ;; Makes lines column wider. - - - - - - - - - - - - - - - - - - - - - - - - ;;
+;; Makes lines column wider. - - - - - - - - - - - - - - - - - - - - - - - - ;;
 ;; (setq linum-format "%3d\u2502")
 
+;; Sets default mode for .js files as js2-mode. - - - - - - - - - - - - - - -;;
 (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
 
 ;; ------------------------------------------------------------------------- ;;
