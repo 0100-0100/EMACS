@@ -31,14 +31,17 @@
 ;; Prevents creation of back-up ~files. - - - - - - - - - - - - - - - - - - -;;
 (setq backup-inhibited t)
 
+;; Toggles truncation of long lines instead of wrapping.
+(setq-default truncate-lines t)
+
 ;; Highlights whitespaces and lines over 80 characters. - - - - - - - - - - -;;
 (require 'whitespace)
 (setq whitespace-style '(face empty lines-tail trailing))
-(setq whitespace-line-column 80) ;; Column highlight number limit. - - - - - ;;
 
 ;; Turn on whitespace mode when entering a c-type or python file. - - - - - -;;
 (add-hook 'c-mode-common-hook 'whitespace-mode t)
 (add-hook 'python-mode-hook 'whitespace-mode t)
+
 ;; Disables auto-save. - - - - - - - - - - - - - - - - - - - - - - - - - - - ;;
 (setq auto-save-default nil)
 
@@ -52,7 +55,7 @@
 (show-paren-mode t)
 
 ;; Higlights current line.
-(global-hl-line-mode t)
+;; (global-hl-line-mode t)
 
 ;; Remembers cursor's last position. - - - - - - - - - - - - - - - - - - - - ;;
 (if (version< emacs-version "25.0")
@@ -71,26 +74,20 @@
 ;; Shows line number column on the left by default. - - - - - - - - - - - - -;;
 (global-linum-mode t)
 
-;; Makes lines column wider. - - - - - - - - - - - - - - - - - - - - - - - - ;;
-(setq linum-format "%3d\u2502 ")
+;; Set only spaces and no tabs. - - - - - - - - - - - - - - - - - - - - - - -;;
+(setq-default indent-tabs-mode nil)
 
-;; Set default C style. - - - - - - - - - - - - - - - - - - - - - - - - - - -;;
-(setq-default indent-tabs-mode t)
+;; Set default tabulation width in spaces. - - - - - - - - - - - - - - - - - ;;
 (setq-default tab-width 4)
 (setq c-default-style "linux" c-basic-offset 4)
 
 ;; Sets tabulation spaces. - - - - - - - - - - - - - - - - - - - - - - - - - ;;
 (setq-default js-indent-level 2)
 (setq-default python-indent-offset 4)
+;; (setq-default sgml-basic-offset 4) HTML file indent.
 
 ;; Makes tab key always call an indent command. - - - - - - - - - - - - - - -;;
 (setq-default tab-always-indent t)
-
-;; Sets indentation level for .js files  - - - - - - - - - - - - - - - - - - ;;
-(setq-default js-indent-level 2)
-
-;; Make tab key call indent command or insert tab character. - - - - - - - - ;;
-(setq-default tab-always-indent nil)
 
 ;; Make tab key do indent first then completion. - - - - - - - - - - - - - - ;;
 (setq-default tab-always-indent 'complete)
@@ -109,7 +106,7 @@
     (revert-buffer :ignore-auto :noconfirm))
 (global-set-key [f8] 'revert-buffer-no-confirm)
 
-;; Binds for multicursor.
+;; Binds for multicursor. - - - - - - - - - - - - - - - - - - - - - - - - - -;;
 (global-set-key [f9] 'mc/edit-lines)
 (global-set-key (kbd "<C-f9>") 'mc/edit-ends-of-lines)
 (global-set-key (kbd "<M-f9>") 'mc/edit-beginnings-of-lines)
@@ -136,8 +133,8 @@
 ;; Disables overly aggressive indentation, for recent emacs versions. - - - -;;
 (when (fboundp 'electric-indent-mode) (electric-indent-mode -1))
 
-(add-to-list
 ;; Pretty print json files when they're opened - - - - - - - - - - - - - - - ;;
+(add-to-list
  'auto-mode-alist
  '("\\.json\\'" . (lambda ()
 		    (javascript-mode)
@@ -170,6 +167,43 @@
 (add-hook 'css-mode-hook 'xah-syntax-color-hex)
 (add-hook 'html-mode-hook 'xah-syntax-color-hex)
 
+;; Highlight the number on the line numbers. - - - - - - - - - - - - - - - - ;;
+(require 'hl-line)
+(defface my-linum-hl
+  `((t :inherit linum :background ,(face-background 'hl-line nil t)))
+  "Face for the current line number."
+  :group 'linum)
+
+(defvar my-linum-format-string "%3d")
+
+(add-hook 'linum-before-numbering-hook 'my-linum-get-format-string)
+
+(defun my-linum-get-format-string ()
+  (let* ((width (1+ (length (number-to-string
+                             (count-lines (point-min) (point-max))))))
+         (format (concat "%" (number-to-string width) "d \u2502 ")))
+    (setq my-linum-format-string format)))
+
+(defvar my-linum-current-line-number 0)
+
+(setq linum-format 'my-linum-format)
+
+(defun my-linum-format (line-number)
+  (propertize (format my-linum-format-string line-number) 'face
+              (if (eq line-number my-linum-current-line-number)
+                  'my-linum-hl
+                'linum)))
+
+(defadvice linum-update (around my-linum-update)
+  (let ((my-linum-current-line-number (line-number-at-pos)))
+    ad-do-it))
+(ad-activate 'linum-update)
+
+;; ;; Makes lines column wider. - - - - - - - - - - - - - - - - - - - - - - - - ;;
+;; (setq linum-format "%3d\u2502")
+
+(add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
+
 ;; ------------------------------------------------------------------------- ;;
 ;;                             Custom variables.                             ;;
 ;; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ;;
@@ -180,10 +214,11 @@
  ;; If there is more than one, they won't work right.
  '(company-idle-delay 0.05)
  '(company-minimum-prefix-length 1)
+ ;; '(global-auto-revert-mode t)
  '(menu-bar-mode nil)
  '(package-selected-packages
    (quote
-    (multiple-cursors yasnippet-snippets magit flycheck-clang-tidy puppet-mode gnu-elpa-keyring-update company))))
+    (js2-highlight-vars json-mode js2-mode jinja2-mode multiple-cursors magit puppet-mode gnu-elpa-keyring-update company))))
 
 ;; ------------------------------------------------------------------------- ;;
 ;;                               Custom faces.                               ;;
@@ -219,6 +254,7 @@
  '(font-lock-string-face ((t (:foreground "#FFA07A"))))
  '(font-lock-type-face ((t (:foreground "#98FB98"))))
  '(font-lock-variable-name-face ((t (:foreground "#FFD787"))))
+ '(fringe ((t (:background "color-243" :inverse-video t))))
  '(highlight ((t (:background "color-235"))))
  '(link ((t (:foreground "color-178" :underline t))))
  '(link-visited ((t (:inherit link :foreground "color-94"))))
@@ -237,6 +273,7 @@
  '(mode-line-emphasis ((t (:foreground "color-136" :weight bold))))
  '(mode-line-highlight ((t (:box (:line-width 2 :color "grey40" :style released-button)))))
  '(mode-line-inactive ((t (:inherit mode-line :foreground "color-243" :box (:line-width -1 :color "grey40") :weight light))))
+ '(my-linum-hl ((t (:foreground "color-220"))))
  '(region ((t (:inverse-video t))))
  '(show-paren-match ((t (:foreground "#00FF00"))))
  '(show-paren-mismatch ((t (:foreground "#FF00FF"))))
@@ -251,24 +288,24 @@
 ;; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ;;
 ;;                                                                           ;;
 ;; Tells emacs where the elisp lib dir is.
-;; (add-to-list 'load-path "~/.emacs.d/lisp/") ;; <--- Uncomment this line
+(add-to-list 'load-path "~/.emacs.d/lisp/") ;; <--- Uncomment this line
 
 ;; 01. Loads Indent-guide package.
 ;; Use the command below for downloading the indent higlight file:
 ;;
 ;;     wget https://github.com/zk-phi/indent-guide/raw/master/indent-guide.el -P ~/.emacs.d/lisp/indent-guide.el
 ;;
-;; (load "indent-guide")
+(load "indent-guide")
 ;; Sets color of indentation-guide character.
-;; (set-face-foreground 'indent-guide-face "color-243")
-;; (indent-guide-global-mode)
+(set-face-foreground 'indent-guide-face "color-243")
+(indent-guide-global-mode)
 
 ;; To enable completion install the package running the command:
 ;;
 ;;    M-x install-packages ENT company
 ;;
 ;; 02. Enables complete-anything on all buffers.
-;; (add-hook 'after-init-hook 'global-company-mode) ;; <---Uncomment this line.
+(add-hook 'after-init-hook 'global-company-mode) ;; <---Uncomment this line.
 
 ;; To enable tag completion on html files.
 ;;
