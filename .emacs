@@ -42,6 +42,7 @@
 (add-hook 'c-mode-common-hook 'whitespace-mode t)
 (add-hook 'python-mode-hook 'whitespace-mode t)
 
+
 ;; Disables auto-save. - - - - - - - - - - - - - - - - - - - - - - - - - - - ;;
 (setq auto-save-default nil)
 
@@ -78,12 +79,10 @@
 (setq-default indent-tabs-mode nil)
 
 ;; Set default tabulation width in spaces. - - - - - - - - - - - - - - - - - ;;
-(setq-default tab-width 4)
 (setq c-default-style "linux" c-basic-offset 4)
-
-;; Sets tabulation spaces. - - - - - - - - - - - - - - - - - - - - - - - - - ;;
 (setq-default js-indent-level 2)
 (setq-default python-indent-offset 4)
+(setq-default python-indent-guess-indent-offset nil)
 ;; (setq-default sgml-basic-offset 4) HTML file indent.
 
 ;; Makes tab key always call an indent command. - - - - - - - - - - - - - - -;;
@@ -182,7 +181,7 @@
 (defun my-linum-get-format-string ()
   (let* ((width (1+ (length (number-to-string
                              (count-lines (point-min) (point-max))))))
-         (format (concat "%" (number-to-string width) "d \u2502 ")))
+         (format (concat "%" (number-to-string width) "d \u2503 ")))
     (setq my-linum-format-string format)))
 
 (defvar my-linum-current-line-number 0)
@@ -216,11 +215,10 @@
  ;; If there is more than one, they won't work right.
  '(company-idle-delay 0.05)
  '(company-minimum-prefix-length 1)
- ;; '(global-auto-revert-mode t)
  '(menu-bar-mode nil)
  '(package-selected-packages
    (quote
-    (js2-highlight-vars json-mode js2-mode jinja2-mode multiple-cursors magit puppet-mode gnu-elpa-keyring-update company))))
+    (emmet-mode yaml-mode js2-highlight-vars json-mode js2-mode jinja2-mode multiple-cursors magit puppet-mode gnu-elpa-keyring-update company))))
 
 ;; ------------------------------------------------------------------------- ;;
 ;;                               Custom faces.                               ;;
@@ -295,11 +293,13 @@
 ;; 01. Loads Indent-guide package.
 ;; Use the command below for downloading the indent higlight file:
 ;;
-;;     wget https://github.com/zk-phi/indent-guide/raw/master/indent-guide.el -P ~/.emacs.d/lisp/indent-guide.el
+;;     wget https://github.com/zk-phi/indent-guide/raw/master/indent-guide.el -P ~/.emacs.d/lisp/
 ;;
 (load "indent-guide")
 ;; Sets color of indentation-guide character.
 (set-face-foreground 'indent-guide-face "color-243")
+;; (setq indent-guide-char "\u2502")
+(setq indent-guide-char "│")
 (indent-guide-global-mode)
 
 ;; To enable completion install the package running the command:
