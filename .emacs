@@ -28,6 +28,9 @@
 ;;                    Default setting and configurations.                    ;;
 ;; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ;;
 
+;; Enables auto load function to load any chage on files automatically. - - -;;
+;; (global-auto-revert-mode t)
+
 ;; Prevents creation of back-up ~files. - - - - - - - - - - - - - - - - - - -;;
 (setq backup-inhibited t)
 
@@ -41,7 +44,12 @@
 ;; Turn on whitespace mode when entering a c-type or python file. - - - - - -;;
 (add-hook 'c-mode-common-hook 'whitespace-mode t)
 (add-hook 'python-mode-hook 'whitespace-mode t)
-
+(add-hook 'js2-mode-hook 'whitespace-mode t)
+(add-hook 'css-mode-hook 'whitespace-mode t)
+(add-hook 'html-mode-hook 'whitespace-mode t)
+(add-hook 'html-mode-hook
+      (lambda ()
+        (setq whitespace-style '(face empty trailing))))
 
 ;; Disables auto-save. - - - - - - - - - - - - - - - - - - - - - - - - - - - ;;
 (setq auto-save-default nil)
@@ -76,14 +84,19 @@
 (global-linum-mode t)
 
 ;; Set only spaces and no tabs. - - - - - - - - - - - - - - - - - - - - - - -;;
-(setq-default indent-tabs-mode nil)
+;; (setq-default indent-tabs-mode t) t for tabs 
+(setq-default indent-tabs-mode nil) ;; nil for no tabs
 
 ;; Set default tabulation width in spaces. - - - - - - - - - - - - - - - - - ;;
-(setq c-default-style "linux" c-basic-offset 4)
+(setq-default c-default-style "linux" c-basic-offset 4 tab-width 4
+              indent-tabs-mode t)
 (setq-default js-indent-level 2)
 (setq-default python-indent-offset 4)
 (setq-default python-indent-guess-indent-offset nil)
-;; (setq-default sgml-basic-offset 4) HTML file indent.
+(setq-default sgml-basic-offset 2) ;; HTML file indent.
+(add-hook 'css-mode-hook (lambda ()
+			   (setq css-indent-offset 2)))
+
 
 ;; Makes tab key always call an indent command. - - - - - - - - - - - - - - -;;
 (setq-default tab-always-indent t)
@@ -136,10 +149,10 @@
 (add-to-list
  'auto-mode-alist
  '("\\.json\\'" . (lambda ()
-		    (javascript-mode)
-		    (json-pretty-print (point-min) (point-max))
-		    (goto-char (point-min))
-		    (set-buffer-modified-p nil))))
+                    (javascript-mode)
+                    (json-pretty-print (point-min) (point-max))
+                    (goto-char (point-min))
+                    (set-buffer-modified-p nil))))
 
 ;; Adds colorhiglighting for hex codes in html and css modes. - - - - - - - - ;;
 (defun xah-syntax-color-hex ()
@@ -166,6 +179,7 @@
 (add-hook 'css-mode-hook 'xah-syntax-color-hex)
 (add-hook 'html-mode-hook 'xah-syntax-color-hex)
 (add-hook 'js2-mode-hook 'xah-syntax-color-hex)
+(add-hook 'xml-mode 'xah-syntax-color-hex)
 
 ;; Highlight the number on the line numbers. - - - - - - - - - - - - - - - - ;;
 (require 'hl-line)
@@ -218,7 +232,8 @@
  '(menu-bar-mode nil)
  '(package-selected-packages
    (quote
-    (emmet-mode yaml-mode js2-highlight-vars json-mode js2-mode jinja2-mode multiple-cursors magit puppet-mode gnu-elpa-keyring-update company))))
+	(lsp-ui lsp-mode rustic use-package flycheck-rust rust-mode nginx-mode emmet-mode yasnippet markdown-preview-mode markdown-mode js2-highlight-vars json-mode js2-mode jinja2-mode multiple-cursors magit puppet-mode gnu-elpa-keyring-update company)))
+ '(safe-local-variable-values (quote ((flycheck-checker . pep8)))))
 
 ;; ------------------------------------------------------------------------- ;;
 ;;                               Custom faces.                               ;;
@@ -293,13 +308,12 @@
 ;; 01. Loads Indent-guide package.
 ;; Use the command below for downloading the indent higlight file:
 ;;
-;;     wget https://github.com/zk-phi/indent-guide/raw/master/indent-guide.el -P ~/.emacs.d/lisp/
+;;     wget https://github.com/zk-phi/indent-guide/raw/master/indent-guide.el -P ~/.emacs.d/lisp/indent-guide.el
 ;;
 (load "indent-guide")
 ;; Sets color of indentation-guide character.
 (set-face-foreground 'indent-guide-face "color-243")
-;; (setq indent-guide-char "\u2502")
-(setq indent-guide-char "│")
+(setq indent-guide-char "\u2502")
 (indent-guide-global-mode)
 
 ;; To enable completion install the package running the command:
@@ -324,3 +338,70 @@
 (require 'package)
 (add-to-list 'package-archives '("melpa-stable" . "https://stable.melpa.org/packages/") t)
 (package-initialize)
+
+
+(add-to-list 'load-path "~/.emacs.d/elpa/emmet-mode-1.0.8/emmet/")
+(require 'emmet-mode)
+(add-hook 'sgml-mode-hook 'emmet-mode) ;; Auto-start on any markup modes
+(add-hook 'html-mode-hook 'emmet-mode)
+(add-hook 'css-mode-hook  'emmet-mode)
+
+
+;; (add-hook 'nginx-mode-hook (lambda () (setq-local indent-tabs-mode t)))
+
+
+;; (unless (package-installed-p 'use-package)
+;;   (package-refresh-contents)
+;;   (package-install 'use-package))
+
+
+;; ;; Rust Development mode configuration.
+;; (use-package rustic
+;;   :ensure
+;;   :bind (:map rustic-mode-map
+;;               ("M-j" . lsp-ui-imenu)
+;;               ("M-?" . lsp-find-references)
+;;               ("C-c C-c l" . flycheck-list-errors)
+;;               ("C-c C-c a" . lsp-execute-code-action)
+;;               ("C-c C-c r" . lsp-rename)
+;;               ("C-c C-c q" . lsp-workspace-restart)
+;;               ("C-c C-c Q" . lsp-workspace-shutdown)
+;;               ("C-c C-c s" . lsp-rust-analyzer-status))
+;;   :config
+;;   ;; uncomment for less flashiness
+;;   ;; (setq lsp-eldoc-hook nil)
+;;   ;; (setq lsp-enable-symbol-highlighting nil)
+;;   ;; (setq lsp-signature-auto-activate nil)
+
+;;   ;; comment to disable rustfmt on save
+;;   (setq rustic-format-on-save t)
+;;   (add-hook 'rustic-mode-hook 'rk/rustic-mode-hook))
+
+;; (defun rk/rustic-mode-hook ()
+;;   ;; so that run C-c C-c C-r works without having to confirm, but don't try to
+;;   ;; save rust buffers that are not file visiting. Once
+;;   ;; https://github.com/brotzeit/rustic/issues/253 has been resolved this should
+;;   ;; no longer be necessary.
+;;   (when buffer-file-name
+;;     (setq-local buffer-save-without-query t)))
+
+;; (use-package lsp-mode
+;;   :ensure
+;;   :commands lsp
+;;   :custom
+;;   ;; what to use when checking on-save. "check" is default, I prefer clippy
+;;   (lsp-rust-analyzer-cargo-watch-command "clippy")
+;;   (lsp-eldoc-render-all t)
+;;   (lsp-idle-delay 0.6)
+;;   (lsp-rust-analyzer-server-display-inlay-hints t)
+;;   :config
+;;   (add-hook 'lsp-mode-hook 'lsp-ui-mode))
+
+;; (use-package lsp-ui
+;;   :ensure
+;;   :commands lsp-ui-mode
+;;   :custom
+;;   (lsp-ui-peek-always-show t)
+;;   (lsp-ui-sideline-show-hover t)
+;;   (lsp-ui-doc-enable nil))
+(put 'downcase-region 'disabled nil)
