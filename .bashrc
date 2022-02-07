@@ -114,7 +114,7 @@ if ! shopt -oq posix; then
 fi
 
 # LS_COLORS
-LS_COLORS='rs=0:di=38;05;33:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=38;02;0;255;0:*.sh=38;5;118:*.md=38;05;159:*.c=38;05;49:*.h=38;05;51:*.py=38;02;255;204;102:*.json=38;5;249:*.csv=38;5;49:*.sql=38;5;208:*.html=38;5;202:*.css=38;5;39:*.scss=38;02;204;102;153:*.js=38;05;220:*.pp=38;5;214';
+LS_COLORS='rs=0:di=38;05;33:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=38;02;0;255;0:*.sh=38;5;118:*.md=38;05;159:*.c=38;05;49:*.h=38;05;51:*.py=38;02;255;204;102:*.json=38;5;249:*.csv=38;5;49:*.sql=38;5;208:*.html=38;5;202:*.css=38;5;39:*.scss=38;02;204;102;153:*.js=38;05;220:*.ts=38;2;0;122;204:*.pp=38;5;214:*.jpg=01;35:*.jpeg=01;35:*.mjpg=01;35:*.mjpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35';
 
 ## Custom python prompt export.
 export PYTHONSTARTUP="$HOME/.py_prompt.py"
@@ -123,13 +123,106 @@ export PYTHONSTARTUP="$HOME/.py_prompt.py"
 alias sgit='f(){ git add "$1"; git commit -m "$2"; git push; unset -f f; }; f'
 
 # PS1 configurations.
-
 # PS1='\W$'
 # PS1='  \[  \e[38;5;246m  \]  \W  \[  \e[m  \] \[  \e[38;5;220m  \]  \$ |  \[  \e[m  \]'
 # PS1='                        \W                                     \$'
+# PS1=$'\\[\e[38;5;246m\\]\W\\[\e[m\\]\\[\e[38;5;220m\\]\$ \u2502 \\[\e[m\\]'
 
-# PS1='\[\e[38;5;246m\]\W\[\e[m\]\[\e[38;5;220m\]\$ | \[\e[m\]'
-PS1=$'\\[\e[38;5;246m\\]\W\\[\e[m\\]\\[\e[38;5;220m\\]\$ \u2502 \\[\e[m\\]'
+DIR_COLOR="\e[38;5;246m"
+SYM_COLOR="\e[38;5;220m"
+
+crontab_prompt(){
+    DIR_LEN=$(printf '%s\n' "${PWD##*/}" | wc -c)
+    SPACE_STR=$(printf " %.0s" $(seq 0 $DIR_LEN))
+    CRON_STATUS=$(service cron status)
+    if [ $? -eq 0 ]; then
+        if [ $PWD = $HOME ]; then
+            echo -en "${SYM_COLOR}${SPACE_STR} ╭🕑\e[38;5;49m Cron 👍"
+        else
+            echo -en "${SYM_COLOR} ${SPACE_STR} ╭🕑\e[38;5;49m Cron 👍"
+        fi
+        git status &> /dev/null
+        if [ $? -ne 0 ]; then
+            echo -e "\n "
+        fi
+    else
+
+        if [ $PWD = $HOME ]; then
+            echo -en "${SYM_COLOR}${SPACE_STR} ╭🕑\e[38;5;196m Cron 🔥"
+        else
+            echo -en "${SYM_COLOR} ${SPACE_STR} ╭🕑\e[38;5;196m Cron 🔥"
+        fi
+        git status &> /dev/null
+        if [ $? -ne 0 ]; then
+            echo -e "\n "
+        fi
+    fi
+}
+
+parse_git_branch() {
+    DIR_LEN=$(printf '%s\n' "${PWD##*/}" | wc -c)
+    SPACE_STR=$(printf " %.0s" $(seq 0 $DIR_LEN))
+    STATUS=$(git status 2> /dev/null)
+    if [ $? -eq 0 ]; then
+
+        echo -ne "  ${SPACE_STR}"
+
+        # Get Branch name
+        BRANCH=$(git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/\'$'\e[38;5;220m╭─● \e[38;5;49m''\1/')
+        echo -ne "\e[m"
+
+        # Calculate status numbers.
+        STATUS=$(git status -s 2> /dev/null)
+        UNTRACKED=$(echo "$STATUS" | grep '^??' | wc -l)
+        MODIFIED=$(echo "$STATUS" | grep '^[[:blank:]]M' | wc -l)
+        DELETED=$(echo "$STATUS" | grep '^[[:blank:]]D' | wc -l)
+        ADDED=$(echo "$STATUS" | grep '^A[[:blank:]]\|^M[[:blank:]]\|^D[[:blank:]]' | wc -l)
+        RENAMED=$(echo "$STATUS" | grep '^[[:blank:]]R' | wc -l)
+
+        STATS=''
+        if [ $ADDED != 0 ]; then
+            STATS="\e[38;5;46m+${ADDED} "
+        fi
+        if [ $MODIFIED != 0 ]; then
+            STATS="${STATS}\e[38;5;214m~${MODIFIED} "
+        fi
+        if [ $DELETED != 0 ]; then
+            STATS="${STATS}\e[38;5;196m-${DELETED} "
+        fi
+        if [ $UNTRACKED != 0 ]; then
+            STATS="${STATS}\e[38;5;250m?${UNTRACKED} "
+        fi
+        if [ $RENAMED != 0 ]; then
+            STATS="${STATS}\e[38;5;33mR${RENAMED} "
+        fi
+
+        # Calculate ahead or behind
+        STATUS="$(git status 2> /dev/null)"
+        DIST_STRING=""
+        IS_AHEAD=$(echo -n "$STATUS" | grep "ahead")
+        IS_BEHIND=$(echo -n "$STATUS" | grep "behind")
+        if [ ! -z "$IS_AHEAD" ]; then
+            DIST_VAL=$(echo "$IS_AHEAD" | sed 's/[^0-9]*//g')
+            DIST_STRING="$DIST_VAL🞂🞂"
+        elif [ ! -z "$IS_BEHIND" ]; then
+            DIST_VAL=$(echo "$IS_BEHIND" | sed 's/[^0-9]*//g')
+            DIST_STRING="🞀🞀$DIST_VAL"
+        fi
+
+        DIST_STRING="\e[38;5;69m${DIST_STRING}"
+        if [ ! -z "$STATS" ]; then
+            echo -e "${BRANCH} ${STATS}${DIST_STRING}\e[m"
+        else
+            echo -e "${BRANCH} ${DIST_STRING}\e[m"
+        fi
+        echo " "
+    fi
+}
+
+# PS1=$'$(crontab_prompt)$(parse_git_branch)\\[\e[38;5;246m\\]\W\\[\e[m\\]\\[\e[38;05;220m\\] \$ \u2502 \T \u2502 \\[\e[m\\]'
+PS1=$'$(parse_git_branch)\\[\e[38;5;246m\\]\W\\[\e[m\\]\\[\e[38;05;220m\\] \$ \u2502 \\[\e[m\\]'
+
+alias gitRemote='for remote in `git branch -r`; do git branch --track ${remote#origin/} $remote; done'
 
 ## hsh - Alias for gcc with the extra compilation flags specific for simple shell.
 alias hsh='gcc -Werror -Wall -Wextra -pedantic -g *.c -o hsh'
@@ -165,7 +258,7 @@ set colored-stats on
 alias sc='shellcheck'
 
 # Update Upgrade Purge Clean Autoremove.
-alias aptUpdate='sudo apt-get update && sudo apt-get upgrade -y && sudo apt-get purge && sudo apt-get clean && sudo apt-get autoremove -y'
+alias aptUpdate='sudo apt update && sudo apt upgrade -y && sudo apt purge && sudo apt clean && sudo apt autoremove -y'
 
 # Alias for mysql prompt.
 alias mysql='mysql --prompt="(\u@\h) [\d]> "'
@@ -185,8 +278,11 @@ alias dockerSh='f(){ docker exec -it "$1" /bin/bash; }; f'
 # usage: dockerIp <name of the container>
 alias dockerIp='f(){ docker inspect -f "{{ .NetworkSettings.IPAddress }}" $1; }; f'
 
-# export WEB1="34.75.21.202"
-# export WEB2="35.185.122.161"
-# export LBA1="35.227.12.65"
+# ipdb breakout() for python3.
+export PYTHONBREAKPOINT=ipdb.set_trace
 
-. "$HOME/.cargo/env"
+#. "$HOME/.cargo/env"
+
+# export NVM_DIR="$HOME/.nvm"
+# [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+# [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
