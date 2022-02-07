@@ -1,7 +1,9 @@
-;; ------------Emacs-Config-for-no-hassle-at-Holberton-School.-------------- ;;
+;; ──────────── Emacs Config for no hassle at HolbertonSchool. ───────────── ;;
 ;;                                                                           ;;
 ;;  This is my configuration file for emacs, was done for use with Vagrant   ;;
 ;;    running Ubuntu 14.04.6 LTS trusty on VirtualBox over SSH.              ;;
+;;                                                                           ;;
+;;   ──── Latest update February 6 2022 With the use of GNU Emacs 26.3 ───   ;;
 ;;                                                                           ;;
 ;;  Most of the color configuration was done through emacs's own configs for ;;
 ;;    utility colors like the highlight of the whitespaces left around,      ;;
@@ -17,113 +19,124 @@
 ;;      M-x customize-themes                                                 ;;
 ;;                                                                           ;;
 ;;  This configuration comes with the tab indentation required by the betty  ;;
-;;    coding style in the C language used at Holberton school, lines no      ;;
-;;    more than 80 characters in lenght and some extra features.             ;;
+;;    coding style in the C language used at Holberton school, Python, JS    ;;
+;;    Html, css syntax highlight and indentation support, highlight for      ;;
+;;    lines no more than 80 characters in lenght and some extra features.    ;;
 ;;                                                                           ;;
 ;;                      Any contributions are welcome.                       ;;
-;;  - - - - - - - - | Written by Diego Lopez  Jan-2021 | - - - - - - - - - - ;;
-;; --------------------| Cohort 13 @Holberton School |---------------------- ;;
+;; ──────────────── | Udpated by Diego Lopez  Feb-2022 | ─────────────────── ;;
+;; ────────────────────| Cohort 13 @Holberton School |────────────────────── ;;
 
-;; ------------------------------------------------------------------------- ;;
+;; ───────────────────────────────────────────────────────────────────────── ;;
 ;;                    Default setting and configurations.                    ;;
-;; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ;;
+;; ───────────────────────────────────────────────────────────────────────── ;;
 
-;; Enables auto load function to load any chage on files automatically. - - -;;
+;; Enables auto load function to load any chage on files automatically. ──── ;;
 ;; (global-auto-revert-mode t)
 
-;; Prevents creation of back-up ~files. - - - - - - - - - - - - - - - - - - -;;
+;; Enable downcase region command. ───────────────────────────────────────── ;; 
+(put 'downcase-region 'disabled nil)
+
+;; Prevents creation of back-up ~files. ──────────────────────────────────── ;;
 (setq backup-inhibited t)
 
-;; Toggles truncation of long lines instead of wrapping.
+;; Toggles truncation of long lines instead of wrapping. ─────────────────── ;;
 (setq-default truncate-lines t)
 
-;; Highlights whitespaces and lines over 80 characters. - - - - - - - - - - -;;
+;; Highlights whitespaces and lines over 80 characters. ──────────────────── ;;
 (require 'whitespace)
 (setq whitespace-style '(face empty lines-tail trailing))
 
-;; Turn on whitespace mode when entering a c-type or python file. - - - - - -;;
+;; Turn on whitespace mode when entering a c-type or python file. ────────── ;;
 (add-hook 'c-mode-common-hook 'whitespace-mode t)
 (add-hook 'python-mode-hook 'whitespace-mode t)
 (add-hook 'js2-mode-hook 'whitespace-mode t)
 (add-hook 'css-mode-hook 'whitespace-mode t)
 (add-hook 'html-mode-hook 'whitespace-mode t)
-(add-hook 'html-mode-hook
-      (lambda ()
-        (setq whitespace-style '(face empty trailing))))
 
-;; Disables auto-save. - - - - - - - - - - - - - - - - - - - - - - - - - - - ;;
+(add-hook 'js2-mode-hook (lambda ()
+                           (setq whitespace-style '(face empty trailing))
+                           ))
+(add-hook 'html-mode-hook (lambda ()
+                            (setq whitespace-style '(face empty trailing))
+                            ))
+
+;; Disables auto-save. ───────────────────────────────────────────────────── ;;
 (setq auto-save-default nil)
 
-;; Enables use of C-c to copy, C-x to cut... - - - - - - - - - - - - - - - - ;;
+;; Enables use of C-c to copy, C-x to cut... ─────────────────────────────── ;;
 (cua-mode 1)
 
-;; Auto closing brackets. - - - - - - - - - - - - - - - - - - - - - - - - - -;;
+;; Auto closing brackets. ────────────────────────────────────────────────── ;;
 (electric-pair-mode 1)
 
-;; Highlights parenthesis and brackets. - - - - - - - - - - - - - - - - - - -;;
+;; Highlights parenthesis and brackets. ──────────────────────────────────── ;;
 (show-paren-mode t)
 
 ;; Higlights current line.
 ;; (global-hl-line-mode t)
 
-;; Remembers cursor's last position. - - - - - - - - - - - - - - - - - - - - ;;
+;; Remembers cursor's last position. ─────────────────────────────────────── ;;
 (if (version< emacs-version "25.0")
     (progn
       (require 'saveplace)
       (setq-default save-place t))
   (save-place-mode 1))
 
-;; UTF-8 as default encoding. - - - - - - - - - - - - - - - - - - - - - - - -;;
+;; UTF-8 as default encoding. ────────────────────────────────────────────── ;;
 (set-language-environment "UTF-8")
 (set-default-coding-systems 'utf-8)
 
-;; Shows cursor position within line. - - - - - - - - - - - - - - - - - - - -;;
+;; Shows cursor position within line. ────────────────────────────────────── ;;
 (column-number-mode 1)
 
-;; Shows line number column on the left by default. - - - - - - - - - - - - -;;
+;; Shows line number column on the left by default. ──────────────────────── ;;
 (global-linum-mode t)
 
-;; Set only spaces and no tabs. - - - - - - - - - - - - - - - - - - - - - - -;;
-;; (setq-default indent-tabs-mode t) t for tabs 
-(setq-default indent-tabs-mode nil) ;; nil for no tabs
-
-;; Set default tabulation width in spaces. - - - - - - - - - - - - - - - - - ;;
+;; Set default tabulation width in spaces. ───────────────────────────────── ;;
 (setq-default c-default-style "linux" c-basic-offset 4 tab-width 4
               indent-tabs-mode t)
 (setq-default js-indent-level 2)
 (setq-default python-indent-offset 4)
 (setq-default python-indent-guess-indent-offset nil)
-(setq-default sgml-basic-offset 2) ;; HTML file indent.
+(setq-default sgml-basic-offset 4 indent-tabs-mode t) ;; HTML file indent.
 (add-hook 'css-mode-hook (lambda ()
 			   (setq css-indent-offset 2)))
 
+;; Set only spaces and no tabs. ──────────────────────────────────────────── ;;
+;; (setq-default indent-tabs-mode t) t for tabs 
+(setq-default indent-tabs-mode nil) ;; nil for no tabs
 
-;; Makes tab key always call an indent command. - - - - - - - - - - - - - - -;;
+;; Makes tab key always call an indent command. ──────────────────────────── ;;
 (setq-default tab-always-indent t)
 
-;; Make tab key do indent first then completion. - - - - - - - - - - - - - - ;;
+;; Make tab key do indent first then completion. ─────────────────────────── ;;
 (setq-default tab-always-indent 'complete)
 
-;; Bind [f5] to comment and [f6] to uncomment region. - - - - - - - - - - - -;;
-(global-set-key [f5] 'comment-region)
-(global-set-key [f6] 'uncomment-region)
+;; Fold this region and unfold with f5 and C-f5. ─────────────────────────── ;;
+(global-set-key [f6] 'fold-this)
+(global-set-key (kbd "<C-f6>") 'fold-this-unfold-at-point)
 
-;; Bind [f7] key to rectangle selection. - - - - - - - - - - - - - - - - - - ;;
+;; Bind [f5] to comment and [f6] to uncomment region. ────────────────────── ;;
+(global-set-key [f5] 'comment-region)
+(global-set-key (kbd "<C-f5>") 'uncomment-region)
+
+;; Bind [f7] key to rectangle selection. ─────────────────────────────────── ;;
 (global-set-key [f7] 'cua-rectangle-mark-mode)
 
-;; Bind [f8] key to re-load file from disc.
+;; Bind [f8] key to re-load file from disc. ──────────────────────────────── ;;
 (defun revert-buffer-no-confirm ()
     "Revert buffer without confirmation."
     (interactive)
     (revert-buffer :ignore-auto :noconfirm))
 (global-set-key [f8] 'revert-buffer-no-confirm)
 
-;; Binds for multicursor. - - - - - - - - - - - - - - - - - - - - - - - - - -;;
+;; Binds for multicursor. ────────────────────────────────────────────────── ;;
 (global-set-key [f9] 'mc/edit-lines)
 (global-set-key (kbd "<C-f9>") 'mc/edit-ends-of-lines)
 (global-set-key (kbd "<M-f9>") 'mc/edit-beginnings-of-lines)
 
-;; Bind C-x C-<up> to move line up - - - - - - - - - - - - - - - - - - - - - ;;
+;; Bind C-x C-<up> to move line up ───────────────────────────────────────── ;;
 (defun move-line-up ()
   "Move up the current line."
   (interactive)
@@ -132,7 +145,7 @@
   (indent-according-to-mode))
 (global-set-key (kbd "C-x C-<up>") 'move-line-up)
 
-;; Bind C-x C-<down> to move line down - - - - - - - - - - - - - - - - - - - ;;
+;; Bind C-x C-<down> to move line down ───────────────────────────────────── ;;
 (defun move-line-down ()
   "Move down the current line."
   (interactive)
@@ -142,10 +155,10 @@
   (indent-according-to-mode))
 (global-set-key (kbd "C-x C-<down>") 'move-line-down)
 
-;; Disables overly aggressive indentation, for recent emacs versions. - - - -;;
+;; Disables overly aggressive indentation, for recent emacs versions. ────── ;;
 (when (fboundp 'electric-indent-mode) (electric-indent-mode -1))
 
-;; Pretty print json files when they're opened - - - - - - - - - - - - - - - ;;
+;; Pretty print json files when they're opened ───────────────────────────── ;;
 (add-to-list
  'auto-mode-alist
  '("\\.json\\'" . (lambda ()
@@ -154,7 +167,7 @@
                     (goto-char (point-min))
                     (set-buffer-modified-p nil))))
 
-;; Adds colorhiglighting for hex codes in html and css modes. - - - - - - - - ;;
+;; Adds colorhiglighting for hex codes in html and css modes. ─────────────── ;;
 (defun xah-syntax-color-hex ()
   (interactive)
   (font-lock-add-keywords
@@ -181,47 +194,40 @@
 (add-hook 'js2-mode-hook 'xah-syntax-color-hex)
 (add-hook 'xml-mode 'xah-syntax-color-hex)
 
-;; Highlight the number on the line numbers. - - - - - - - - - - - - - - - - ;;
+;; Highlight the number on the line numbers. ─────────────────────────────── ;;
 (require 'hl-line)
 (defface my-linum-hl
   `((t :inherit linum :background ,(face-background 'hl-line nil t)))
   "Face for the current line number."
   :group 'linum)
-
 (defvar my-linum-format-string "%3d")
-
 (add-hook 'linum-before-numbering-hook 'my-linum-get-format-string)
-
 (defun my-linum-get-format-string ()
   (let* ((width (1+ (length (number-to-string
                              (count-lines (point-min) (point-max))))))
          (format (concat "%" (number-to-string width) "d \u2503 ")))
     (setq my-linum-format-string format)))
-
 (defvar my-linum-current-line-number 0)
-
 (setq linum-format 'my-linum-format)
-
 (defun my-linum-format (line-number)
   (propertize (format my-linum-format-string line-number) 'face
               (if (eq line-number my-linum-current-line-number)
                   'my-linum-hl
                 'linum)))
-
 (defadvice linum-update (around my-linum-update)
   (let ((my-linum-current-line-number (line-number-at-pos)))
     ad-do-it))
 (ad-activate 'linum-update)
 
-;; Makes lines column wider. - - - - - - - - - - - - - - - - - - - - - - - - ;;
+;; Makes lines column wider. ─────────────────────────────────────────────── ;;
 ;; (setq linum-format "%3d\u2502")
 
-;; Sets default mode for .js files as js2-mode. - - - - - - - - - - - - - - -;;
-(add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
+;; Sets default mode for .js files as tide-mode instead of js2-mode. ─────── ;;
+(add-to-list 'auto-mode-alist '("\\.js\\'" . tide-mode))
 
-;; ------------------------------------------------------------------------- ;;
+;; ───────────────────────────────────────────────────────────────────────── ;;
 ;;                             Custom variables.                             ;;
-;; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ;;
+;; ───────────────────────────────────────────────────────────────────────── ;;
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -229,15 +235,18 @@
  ;; If there is more than one, they won't work right.
  '(company-idle-delay 0.05)
  '(company-minimum-prefix-length 1)
+ '(flycheck-python-flake8-executable "python3")
+ '(flycheck-python-pycompile-executable "python3")
+ '(flycheck-python-pylint-executable "python3")
  '(menu-bar-mode nil)
  '(package-selected-packages
    (quote
-	(lsp-ui lsp-mode rustic use-package flycheck-rust rust-mode nginx-mode emmet-mode yasnippet markdown-preview-mode markdown-mode js2-highlight-vars json-mode js2-mode jinja2-mode multiple-cursors magit puppet-mode gnu-elpa-keyring-update company)))
- '(safe-local-variable-values (quote ((flycheck-checker . pep8)))))
+    (flymake-python-pyflakes tide docker-compose-mode dockerfile-mode exec-path-from-shell web-mode flymake-eslint flycheck-pycheckers elpy omnisharp csproj-mode direx go-mode fold-this lsp-ui lsp-mode rustic use-package flycheck-rust rust-mode nginx-mode emmet-mode yasnippet markdown-preview-mode markdown-mode js2-highlight-vars json-mode js2-mode jinja2-mode multiple-cursors magit puppet-mode gnu-elpa-keyring-update company)))
+ '(safe-local-variable-values (quote ((flycheck-checker . pycodestyle)))))
 
-;; ------------------------------------------------------------------------- ;;
+;; ───────────────────────────────────────────────────────────────────────── ;;
 ;;                               Custom faces.                               ;;
-;; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ;;
+;; ───────────────────────────────────────────────────────────────────────── ;;
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -258,6 +267,14 @@
  '(custom-group-tag-1 ((t (:inherit variable-pitch :foreground "color-94" :weight bold :height 1.2))))
  '(custom-state ((t (:foreground "color-47"))))
  '(custom-variable-tag ((t (:foreground "color-136" :weight bold))))
+ '(diff-added ((t (:inherit diff-changed :background "#ddffdd" :foreground "color-28"))))
+ '(diff-context ((t (:foreground "color-242"))))
+ '(diff-file-header ((t (:background "color-234" :foreground "color-220" :weight bold))))
+ '(diff-function ((t (:foreground "color-255"))))
+ '(diff-header ((t (:foreground "color-220"))))
+ '(diff-hunk-header ((t (:inherit diff-header :foreground "color-255"))))
+ '(diff-indicator-removed ((t (:inherit diff-removed :foreground "brightred"))))
+ '(diff-removed ((t (:inherit diff-changed :background "#ffdddd" :foreground "brightred"))))
  '(eieio-custom-slot-tag-face ((t (:foreground "color-136"))) t)
  '(error ((t (:foreground "brightred" :weight bold))))
  '(font-lock-builtin-face ((t (:foreground "#B0C5DE"))))
@@ -298,17 +315,22 @@
  '(whitespace-line ((t (:background "color-234" :foreground "brightred" :inverse-video t))))
  '(whitespace-space ((t (:foreground "brightwhite")))))
 
-;; ------------------------------------------------------------------------- ;;
+;; ───────────────────────────────────────────────────────────────────────── ;;
 ;;                            Added lisp packages.                           ;;
-;; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ;;
+;; ───────────────────────────────────────────────────────────────────────── ;;
 ;;                                                                           ;;
 ;; Tells emacs where the elisp lib dir is.
-(add-to-list 'load-path "~/.emacs.d/lisp/") ;; <--- Uncomment this line
+(add-to-list 'load-path "~/.emacs.d/lisp/")
+
+;; Adds Melpa packages
+(require 'package)
+(add-to-list 'package-archives '("melpa-stable" . "https://stable.melpa.org/packages/") t)
+(package-initialize)
 
 ;; 01. Loads Indent-guide package.
 ;; Use the command below for downloading the indent higlight file:
 ;;
-;;     wget https://github.com/zk-phi/indent-guide/raw/master/indent-guide.el -P ~/.emacs.d/lisp/indent-guide.el
+;; wget https://github.com/zk-phi/indent-guide/raw/master/indent-guide.el -P ~/.emacs.d/lisp
 ;;
 (load "indent-guide")
 ;; Sets color of indentation-guide character.
@@ -321,39 +343,48 @@
 ;;    M-x install-packages ENT company
 ;;
 ;; 02. Enables complete-anything on all buffers.
-(add-hook 'after-init-hook 'global-company-mode) ;; <---Uncomment this line.
+(add-hook 'after-init-hook 'global-company-mode)
 
-;; To enable tag completion on html files.
+;; To enable custom snippet auto-completion.
 ;;
 ;;    M-x install-packages ENT yasnippet
 ;;
 ;; 03. Enables yasnippet on html.
-;; (add-to-list 'load-path
-;;              "~/.emacs.d/elpa/yasnippet-0.14.0")
-;; (require 'yasnippet)
-;; (yas-reload-all)
-;; (add-hook 'html-mode-hook #'yas-minor-mode)
+(add-to-list 'load-path
+             "~/.emacs.d/elpa/yasnippet-0.14.0")
+(require 'yasnippet)
+(yas-reload-all)
+(yas-global-mode)
 
-;; Adds Melpa packages
-(require 'package)
-(add-to-list 'package-archives '("melpa-stable" . "https://stable.melpa.org/packages/") t)
-(package-initialize)
-
-
+;; To enable famous emmet completion for html documents.
+;;
+;;    M-x install-packages ENT emmet-mode
+;;
+;; 04. Enables emmet mode on html.
 (add-to-list 'load-path "~/.emacs.d/elpa/emmet-mode-1.0.8/emmet/")
 (require 'emmet-mode)
 (add-hook 'sgml-mode-hook 'emmet-mode) ;; Auto-start on any markup modes
 (add-hook 'html-mode-hook 'emmet-mode)
 (add-hook 'css-mode-hook  'emmet-mode)
 
+;; Crontab mode.
+(add-to-list 'load-path "~/.emacs.d/elpa/crontab-mode-20210715.133/")
+(load "crontab-mode")
+(add-to-list 'auto-mode-alist '("\\crontab\\'" . crontab-mode))
 
 ;; (add-hook 'nginx-mode-hook (lambda () (setq-local indent-tabs-mode t)))
 
-
-;; (unless (package-installed-p 'use-package)
-;;   (package-refresh-contents)
-;;   (package-install 'use-package))
-
+;; (add-to-list 'auto-mode-alist '("\\.jsx$" . web-mode))
+;; (require 'flycheck)
+;; (add-hook 'after-init-hook #'global-flycheck-mode)
+;; (setq-default flycheck-disabled-checkers
+;;   (append flycheck-disabled-checkers
+;;     '(javascript-jshint)))
+;; (flycheck-add-mode 'javascript-eslint 'web-mode)
+;; (setq-default flycheck-temp-prefix ".flycheck")
+;; (setq-default flycheck-disabled-checkers
+;;   (append flycheck-disabled-checkers
+;;     '(json-jsonlist)))
 
 ;; ;; Rust Development mode configuration.
 ;; (use-package rustic
@@ -404,4 +435,34 @@
 ;;   (lsp-ui-peek-always-show t)
 ;;   (lsp-ui-sideline-show-hover t)
 ;;   (lsp-ui-doc-enable nil))
-(put 'downcase-region 'disabled nil)
+
+(unless (package-installed-p 'use-package)
+  (package-refresh-contents)
+  (package-install 'use-package))
+(put 'upcase-region 'disabled nil)
+
+;; Python3 flycmake configurations.
+(require 'flymake-python-pyflakes)
+(add-hook 'python-mode-hook 'flymake-python-pyflakes-load)
+(setq flymake-python-pyflakes-executable "flake8")
+
+;; TypeScript tide mode configuration.
+(defun setup-tide-mode ()
+  (interactive)
+  (tide-setup)
+  (flycheck-mode +1)
+  (setq flycheck-check-syntax-automatically '(save mode-enabled))
+  (eldoc-mode +1)
+  (tide-hl-identifier-mode +1)
+  ;; company is an optional dependency. You have to
+  ;; install it separately via package-install
+  ;; `M-x package-install [ret] company`
+  (company-mode +1))
+
+;; aligns annotation to the right hand side
+(setq company-tooltip-align-annotations t)
+
+;; formats the buffer before saving
+(add-hook 'before-save-hook 'tide-format-before-save)
+
+(add-hook 'typescript-mode-hook #'setup-tide-mode)
