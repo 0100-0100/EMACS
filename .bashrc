@@ -222,6 +222,8 @@ parse_git_branch() {
 # PS1=$'$(crontab_prompt)$(parse_git_branch)\\[\e[38;5;246m\\]\W\\[\e[m\\]\\[\e[38;05;220m\\] \$ \u2502 \T \u2502 \\[\e[m\\]'
 PS1=$'$(parse_git_branch)\\[\e[38;5;246m\\]\W\\[\e[m\\]\\[\e[38;05;220m\\] \$ \u2502 \\[\e[m\\]'
 
+alias clock='while sleep 1;do tput sc;tput cup $(tput lines) $(($(tput cols)-11));echo -en "\e[38;05;220m`date +%r`\e[39m";tput rc;done &'
+
 alias gitRemote='for remote in `git branch -r`; do git branch --track ${remote#origin/} $remote; done'
 
 ## hsh - Alias for gcc with the extra compilation flags specific for simple shell.

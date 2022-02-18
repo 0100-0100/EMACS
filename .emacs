@@ -93,19 +93,20 @@
 ;; Shows line number column on the left by default. ──────────────────────── ;;
 (global-linum-mode t)
 
-;; Set default tabulation width in spaces. ───────────────────────────────── ;;
-(setq-default c-default-style "linux" c-basic-offset 4 tab-width 4
-              indent-tabs-mode t)
-(setq-default js-indent-level 2)
-(setq-default python-indent-offset 4)
-(setq-default python-indent-guess-indent-offset nil)
-(setq-default sgml-basic-offset 4 indent-tabs-mode t) ;; HTML file indent.
-(add-hook 'css-mode-hook (lambda ()
-			   (setq css-indent-offset 2)))
-
 ;; Set only spaces and no tabs. ──────────────────────────────────────────── ;;
 ;; (setq-default indent-tabs-mode t) t for tabs 
 (setq-default indent-tabs-mode nil) ;; nil for no tabs
+
+;; Set default tabulation width in spaces. ───────────────────────────────── ;;
+(setq-default c-default-style "linux" c-basic-offset 4 tab-width 4
+              indent-tabs-mode t)
+(setq-default python-indent-offset 4)
+(setq-default python-indent-guess-indent-offset nil)
+(setq-default js-indent-level 2)
+(setq-default web-mode-code-indent-offset 2)
+(setq-default sgml-basic-offset 4 indent-tabs-mode t) ;; HTML file indent.
+(add-hook 'css-mode-hook (lambda ()
+			   (setq css-indent-offset 2)))
 
 ;; Makes tab key always call an indent command. ──────────────────────────── ;;
 (setq-default tab-always-indent t)
@@ -223,7 +224,9 @@
 ;; (setq linum-format "%3d\u2502")
 
 ;; Sets default mode for .js files as tide-mode instead of js2-mode. ─────── ;;
-(add-to-list 'auto-mode-alist '("\\.js\\'" . tide-mode))
+;; (add-to-list 'auto-mode-alist '("\\.js\\'" . emmet-mode))
+;; (add-to-list 'auto-mode-alist '("\\.js\\'" . tide-mode))
+;; (add-to-list 'auto-mode-alist '("\\.js\\'" . web-mode))
 
 ;; ───────────────────────────────────────────────────────────────────────── ;;
 ;;                             Custom variables.                             ;;
