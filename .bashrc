@@ -31,46 +31,45 @@ shopt -s checkwinsize
 [ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
 
 # set variable identifying the chroot you work in (used in the prompt below)
-# if [ -z "${debian_chroot:-}" ] && [ -r /etc/debian_chroot ]; then
-#     debian_chroot=$(cat /etc/debian_chroot)
-# fi
+if [ -z "${debian_chroot:-}" ] && [ -r /etc/debian_chroot ]; then
+    debian_chroot=$(cat /etc/debian_chroot)
+fi
 
 # set a fancy prompt (non-color, unless we know we "want" color)
 case "$TERM" in
-    xterm-color) color_prompt=yes;;
+    xterm-color|*-256color) color_prompt=yes;;
 esac
 
 # uncomment for a colored prompt, if the terminal has the capability; turned
 # off by default to not distract the user: the focus in a terminal window
 # should be on the output of commands, not on the prompt
-#force_color_prompt=yes
-
-# if [ -n "$force_color_prompt" ]; then
-#     if [ -x /usr/bin/tput ] && tput setaf 1 >&/dev/null; then
+force_color_prompt=yes
+if [ -n "$force_color_prompt" ]; then
+    if [ -x /usr/bin/tput ] && tput setaf 1 >&/dev/null; then
         # We have color support; assume it's compliant with Ecma-48
         # (ISO/IEC-6429). (Lack of such support is extremely rare, and such
         # a case would tend to support setf rather than setaf.)
-#       color_prompt=yes
-#     else
-#       color_prompt=
-#     fi
-# fi
+        color_prompt=yes
+    else
+        color_prompt=
+    fi
+fi
 
-# if [ "$color_prompt" = yes ]; then
-#     PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
-# else
-#     PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
-# fi
-# unset color_prompt force_color_prompt
+if [ "$color_prompt" = yes ]; then
+    PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
+else
+    PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
+fi
+unset color_prompt force_color_prompt
 
 # If this is an xterm set the title to user@host:dir
-# case "$TERM" in
-# xterm*|rxvt*)
-#     PS1="\[\e]0;${debian_chroot:+($debian_chroot)}\u@\h: \w\a\]$PS1"
-#     ;;
-# *)
-#     ;;
-# esac
+case "$TERM" in
+xterm*|rxvt*)
+    PS1="\[\e]0;${debian_chroot:+($debian_chroot)}\u@\h: \w\a\]$PS1"
+    ;;
+*)
+    ;;
+esac
 
 # enable color support of ls and also add handy aliases
 if [ -x /usr/bin/dircolors ]; then
@@ -83,6 +82,9 @@ if [ -x /usr/bin/dircolors ]; then
     alias fgrep='fgrep --color=auto'
     alias egrep='egrep --color=auto'
 fi
+
+# colored GCC warnings and errors
+#export GCC_COLORS='error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01'
 
 # some more ls aliases
 alias ll='ls -alF'
@@ -114,32 +116,31 @@ if ! shopt -oq posix; then
 fi
 
 # LS_COLORS
-LS_COLORS='rs=0:di=38;05;33:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=38;02;0;255;0:*.sh=38;5;118:*.md=38;05;159:*.c=38;05;49:*.h=38;05;51:*.py=38;02;255;204;102:*.json=38;5;249:*.csv=38;5;49:*.sql=38;5;208:*.html=38;5;202:*.css=38;5;39:*.scss=38;02;204;102;153:*.js=38;05;220:*.ts=38;2;0;122;204:*.pp=38;5;214:*.jpg=01;35:*.jpeg=01;35:*.mjpg=01;35:*.mjpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35';
-
-## Custom python prompt export.
-export PYTHONSTARTUP="$HOME/.py_prompt.py"
-
-## sgit - super git, alias for running several git commands.
-alias sgit='f(){ git add "$1"; git commit -m "$2"; git push; unset -f f; }; f'
+LS_COLORS='rs=0:di=38;05;33:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=38;02;0;255;0:*.sh=38;5;118:*.md=38;05;159:*.c=38;05;49:*.h=38;05;51:*.py=38;02;255;204;102:*.json=38;5;249:*.csv=38;5;49:*.sql=38;5;208:*.html=38;5;202:*.css=38;5;39:*.scss=38;02;204;102;153:*.js=38;05;220:*.ts=38;2;0;122;204:*.pp=38;5;214:*.jpg=01;35:*.jpeg=01;35:*.mjpg=01;35:*.mjpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.org=38;02;88;126;114';
 
 # PS1 configurations.
 # PS1='\W$'
 # PS1='  \[  \e[38;5;246m  \]  \W  \[  \e[m  \] \[  \e[38;5;220m  \]  \$ |  \[  \e[m  \]'
 # PS1='                        \W                                     \$'
+# Adding enclosing \\[...\\] Will prevent prompt issues.
 # PS1=$'\\[\e[38;5;246m\\]\W\\[\e[m\\]\\[\e[38;5;220m\\]\$ \u2502 \\[\e[m\\]'
 
 DIR_COLOR="\e[38;5;246m"
 SYM_COLOR="\e[38;5;220m"
+OK_COLOR="\e[38;5;49m"
+BAD_COLOR="\e[38;5;196m"
 
 crontab_prompt(){
     DIR_LEN=$(printf '%s\n' "${PWD##*/}" | wc -c)
     SPACE_STR=$(printf " %.0s" $(seq 0 $DIR_LEN))
     CRON_STATUS=$(service cron status)
+    CRON_JOBS=$(pidof cron | cut -d" " -f1 | xargs pstree -p | grep -o cron | wc -l)
+    CRON_JOBS=$((CRON_JOBS-1))
     if [ $? -eq 0 ]; then
-        if [ $PWD = $HOME ]; then
-            echo -en "${SYM_COLOR}${SPACE_STR} ╭🕑\e[38;5;49m Cron 👍"
+        if [[ $PWD == $HOME ]]; then
+            echo -en "${SYM_COLOR}${SPACE_STR} ╭🕑${OK_COLOR}Cron${SYM_COLOR}(${OK_COLOR}${CRON_JOBS}${SYM_COLOR}) "
         else
-            echo -en "${SYM_COLOR} ${SPACE_STR} ╭🕑\e[38;5;49m Cron 👍"
+            echo -en "${SYM_COLOR} ${SPACE_STR}╭🕑${OK_COLOR}Cron${SYM_COLOR}(${OK_COLOR}${CRON_JOBS}${SYM_COLOR}) "
         fi
         git status &> /dev/null
         if [ $? -ne 0 ]; then
@@ -147,14 +148,14 @@ crontab_prompt(){
         fi
     else
 
-        if [ $PWD = $HOME ]; then
-            echo -en "${SYM_COLOR}${SPACE_STR} ╭🕑\e[38;5;196m Cron 🔥"
+        if [[ $PWD == $HOME ]]; then
+            echo -en "${SYM_COLOR}${SPACE_STR}╭🕑${BAD_COLOR} Cron 🔥"
         else
-            echo -en "${SYM_COLOR} ${SPACE_STR} ╭🕑\e[38;5;196m Cron 🔥"
+            echo -en "${SYM_COLOR} ${SPACE_STR}╭🕑${BAD_COLOR} Cron 🔥"
         fi
         git status &> /dev/null
         if [ $? -ne 0 ]; then
-            echo -e "\n "
+            echo -e "\n"
         fi
     fi
 }
@@ -168,7 +169,7 @@ parse_git_branch() {
         echo -ne "  ${SPACE_STR}"
 
         # Get Branch name
-        BRANCH=$(git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/\'$'\e[38;5;220m╭─● \e[38;5;49m''\1/')
+        BRANCH=$(git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/\'$"${SYM_COLOR}╭─● "'\'$"${OK_COLOR}"'\1/')
         echo -ne "\e[m"
 
         # Calculate status numbers.
@@ -219,11 +220,18 @@ parse_git_branch() {
     fi
 }
 
-# PS1=$'$(crontab_prompt)$(parse_git_branch)\\[\e[38;5;246m\\]\W\\[\e[m\\]\\[\e[38;05;220m\\] \$ \u2502 \T \u2502 \\[\e[m\\]'
 PS1=$'$(parse_git_branch)\\[\e[38;5;246m\\]\W\\[\e[m\\]\\[\e[38;05;220m\\] \$ \u2502 \\[\e[m\\]'
 
+# AWS prompt.
+# PS1=$'$(crontab_prompt)$(parse_git_branch)\\[\e[01;34m\\]\W\\[\e[m\\]\\[\e[38;5;208m\\] AWS \$ \u2502 \T \u2502 \\[\e[m\\]'
+
+# sgit - super git, alias for running several git commands.
+alias sgit='f(){ git add "$1"; git commit -m "$2"; git push; unset -f f; }; f'
+
+# Clock overlay
 alias clock='while sleep 1;do tput sc;tput cup $(tput lines) $(($(tput cols)-11));echo -en "\e[38;05;220m`date +%r`\e[39m";tput rc;done &'
 
+# Brings all the remote branches as local branches.
 alias gitRemote='for remote in `git branch -r`; do git branch --track ${remote#origin/} $remote; done'
 
 ## hsh - Alias for gcc with the extra compilation flags specific for simple shell.
@@ -231,12 +239,6 @@ alias hsh='gcc -Werror -Wall -Wextra -pedantic -g *.c -o hsh'
 
 ## GCC - Alias for all flags used at holberton.
 alias GCC='gcc -Werror -Wall -Wextra -pedantic -g'
-
-# Get color support for 'less'
-export LESS="--RAW-CONTROL-CHARS"
-
-# Use colors for less, man, etc.
-[[ -f ~/.LESS_TERMCAP ]] && . ~/.LESS_TERMCAP
 
 # alias for cat with colors.
 alias Cat='ccat -G Comment="darkgray" -G Punctuation="darkyellow" -G Keyword="blue" -G Plaintext="turquoise" -G String="red" -G Decimal="darkred"'
@@ -253,9 +255,6 @@ alias setDISPLAY="export DISPLAY=$(cat /etc/resolv.conf | grep nameserver | awk 
 # Alias for compiling all .c for SDL.
 alias cSDL='gcc *.c `sdl2-config --cflags --libs`'
 
-# Use GNU ls colors when tab-completing files
-set colored-stats on
-
 # ShellCheck
 alias sc='shellcheck'
 
@@ -264,10 +263,6 @@ alias aptUpdate='sudo apt update && sudo apt upgrade -y && sudo apt purge && sud
 
 # Alias for mysql prompt.
 alias mysql='mysql --prompt="(\u@\h) [\d]> "'
-
-# Bind the ctrl + left and right arrow keys.
-bind '"\e[1;5D" backward-word'
-bind '"\e[1;5C" forward-word'
 
 # Alias for live server.
 alias live-server='sudo live-server --port=80 --host=0.0.0.0'
@@ -280,8 +275,24 @@ alias dockerSh='f(){ docker exec -it "$1" /bin/bash; }; f'
 # usage: dockerIp <name of the container>
 alias dockerIp='f(){ docker inspect -f "{{ .NetworkSettings.IPAddress }}" $1; }; f'
 
+# Bind the ctrl + left and right arrow keys.
+bind '"\e[1;5D" backward-word'
+bind '"\e[1;5C" forward-word'
+
+# Use colors for less, man, etc.
+[[ -f ~/.LESS_TERMCAP ]] && . ~/.LESS_TERMCAP
+
+# Use GNU ls colors when tab-completing files
+set colored-stats on
+
+## Custom python prompt export.
+export PYTHONSTARTUP="$HOME/.py_prompt.py"
+
 # ipdb breakout() for python3.
 export PYTHONBREAKPOINT=ipdb.set_trace
+
+# Get color support for 'less'
+export LESS="--RAW-CONTROL-CHARS"
 
 #. "$HOME/.cargo/env"
 
