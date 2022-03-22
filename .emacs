@@ -3,7 +3,7 @@
 ;;  This is my configuration file for emacs, was done for use with Vagrant   ;;
 ;;    running Ubuntu 14.04.6 LTS trusty on VirtualBox over SSH.              ;;
 ;;                                                                           ;;
-;;   ──── Latest update February 6 2022 With the use of GNU Emacs 26.3 ───   ;;
+;;   ──── Latest update March 21st 2022 With the use of GNU Emacs 26.3 ───   ;;
 ;;                                                                           ;;
 ;;  Most of the color configuration was done through emacs's own configs for ;;
 ;;    utility colors like the highlight of the whitespaces left around,      ;;
@@ -34,7 +34,10 @@
 ;; Enables auto load function to load any chage on files automatically. ──── ;;
 ;; (global-auto-revert-mode t)
 
-;; Enable downcase region command. ───────────────────────────────────────── ;; 
+;; Set org evaluate to nil by default.
+(setq org-confirm-babel-evaluate nil)
+
+;; Enable downcase region command. ───────────────────────────────────────── ;;
 (put 'downcase-region 'disabled nil)
 
 ;; Prevents creation of back-up ~files. ──────────────────────────────────── ;;
@@ -100,13 +103,13 @@
 ;; Set default tabulation width in spaces. ───────────────────────────────── ;;
 (setq-default c-default-style "linux" c-basic-offset 4 tab-width 4
               indent-tabs-mode t)
-(setq-default python-indent-offset 4)
-(setq-default python-indent-guess-indent-offset nil)
 (setq-default js-indent-level 2)
+(setq-default python-indent-offset 4)
+(setq-default python-indent-guess-indent-offset nil indent-tabs-mode nil)
 (setq-default web-mode-code-indent-offset 2)
 (setq-default sgml-basic-offset 4 indent-tabs-mode t) ;; HTML file indent.
-(add-hook 'css-mode-hook (lambda ()
-			   (setq css-indent-offset 2)))
+(add-hook 'css-mode-hook (lambda () (setq css-indent-offset 2)))
+(add-hook 'nginx-mode-hook (lambda () (setq-local indent-tabs-mode t)))
 
 ;; Makes tab key always call an indent command. ──────────────────────────── ;;
 (setq-default tab-always-indent t)
@@ -114,13 +117,20 @@
 ;; Make tab key do indent first then completion. ─────────────────────────── ;;
 (setq-default tab-always-indent 'complete)
 
-;; Fold this region and unfold with f5 and C-f5. ─────────────────────────── ;;
-(global-set-key [f6] 'fold-this)
-(global-set-key (kbd "<C-f6>") 'fold-this-unfold-at-point)
+;; Makes lines column wider. ─────────────────────────────────────────────── ;;
+;; (setq linum-format "%3d\u2502")
 
-;; Bind [f5] to comment and [f6] to uncomment region. ────────────────────── ;;
+;; Turn off linum-mode in the modes below. ───────────────────────────────── ;;
+(add-hook 'diff-mode-hook (lambda () (linum-mode -1)))
+(add-hook 'special-mode-hook (lambda () (linum-mode -1)))
+
+;; Bind [f5] to comment and C-[f5] to uncomment region. ──────────────────── ;;
 (global-set-key [f5] 'comment-region)
 (global-set-key (kbd "<C-f5>") 'uncomment-region)
+
+;; Fold this region and unfold with f6 and C-f6. ─────────────────────────── ;;
+(global-set-key [f6] 'fold-this)
+(global-set-key (kbd "<C-f6>") 'fold-this-unfold-at-point)
 
 ;; Bind [f7] key to rectangle selection. ─────────────────────────────────── ;;
 (global-set-key [f7] 'cua-rectangle-mark-mode)
@@ -136,6 +146,8 @@
 (global-set-key [f9] 'mc/edit-lines)
 (global-set-key (kbd "<C-f9>") 'mc/edit-ends-of-lines)
 (global-set-key (kbd "<M-f9>") 'mc/edit-beginnings-of-lines)
+
+;;(global-set-key [f12] 'diff-hl--global-turn-on)
 
 ;; Bind C-x C-<up> to move line up ───────────────────────────────────────── ;;
 (defun move-line-up ()
@@ -220,8 +232,85 @@
     ad-do-it))
 (ad-activate 'linum-update)
 
-;; Makes lines column wider. ─────────────────────────────────────────────── ;;
-;; (setq linum-format "%3d\u2502")
+;; Increment and Decrement Integer at Point ─────────────────────────────── ;;
+(require 'thingatpt)
+(defun thing-at-point-goto-end-of-integer ()
+  "Go to end of integer at point."
+  (let ((inhibit-changing-match-data t))
+    ;; Skip over optional sign
+    (when (looking-at "[+-]")
+      (forward-char 1))
+    ;; Skip over digits
+    (skip-chars-forward "[[:digit:]]")
+    ;; Check for at least one digit
+    (unless (looking-back "[[:digit:]]")
+      (error "No integer here"))))
+(put 'integer 'beginning-op 'thing-at-point-goto-end-of-integer)
+
+(defun thing-at-point-goto-beginning-of-integer ()
+  "Go to end of integer at point."
+  (let ((inhibit-changing-match-data t))
+    ;; Skip backward over digits
+    (skip-chars-backward "[[:digit:]]")
+    ;; Check for digits and optional sign
+    (unless (looking-at "[+-]?[[:digit:]]")
+      (error "No integer here"))
+    ;; Skip backward over optional sign
+    (when (looking-back "[+-]")
+        (backward-char 1))))
+(put 'integer 'beginning-op 'thing-at-point-goto-beginning-of-integer)
+
+(defun thing-at-point-bounds-of-integer-at-point ()
+  "Get boundaries of integer at point."
+  (save-excursion
+    (let (beg end)
+      (thing-at-point-goto-beginning-of-integer)
+      (setq beg (point))
+      (thing-at-point-goto-end-of-integer)
+      (setq end (point))
+      (cons beg end))))
+(put 'integer 'bounds-of-thing-at-point 'thing-at-point-bounds-of-integer-at-point)
+
+(defun thing-at-point-integer-at-point ()
+  "Get integer at point."
+  (let ((bounds (bounds-of-thing-at-point 'integer)))
+    (string-to-number (buffer-substring (car bounds) (cdr bounds)))))
+(put 'integer 'thing-at-point 'thing-at-point-integer-at-point)
+
+(defun increment-integer-at-point (&optional inc)
+  "Increment integer at point by one.
+
+With numeric prefix arg INC, increment the integer by INC amount."
+  (interactive "p")
+  (let ((inc (or inc 1))
+        (n (thing-at-point 'integer))
+        (bounds (bounds-of-thing-at-point 'integer)))
+    (delete-region (car bounds) (cdr bounds))
+    (insert (int-to-string (+ n inc)))))
+
+(defun decrement-integer-at-point (&optional dec)
+  "Decrement integer at point by one.
+
+With numeric prefix arg DEC, decrement the integer by DEC amount."
+  (interactive "p")
+  (increment-integer-at-point (- (or dec 1))))
+
+(global-set-key (kbd "C-c +") #'increment-integer-at-point)
+(global-set-key (kbd "C-c -") #'decrement-integer-at-point)
+
+;; Sets default mode for .js files as tide-mode instead of js2-mode. ─────── ;;
+(add-to-list 'auto-mode-alist '("\\.js\\'" . tide-mode))
+
+(org-babel-do-load-languages 'org-babel-load-languages '((python . t)))
+(setq org-babel-python-command "python3")
+'(lazy-lock-mode t nil (lazy-lock))
+;; (setq org-babel-python-command "python3")
+;; (org-babel-do-load-languages 'org-babel-load-languages
+;; 							 '(
+;; 							   (emacs-lisp . t)
+;; 							   (python . t)
+;; 							   )
+;; 							 )
 
 ;; Sets default mode for .js files as tide-mode instead of js2-mode. ─────── ;;
 ;; (add-to-list 'auto-mode-alist '("\\.js\\'" . emmet-mode))
@@ -244,7 +333,7 @@
  '(menu-bar-mode nil)
  '(package-selected-packages
    (quote
-    (flymake-python-pyflakes tide docker-compose-mode dockerfile-mode exec-path-from-shell web-mode flymake-eslint flycheck-pycheckers elpy omnisharp csproj-mode direx go-mode fold-this lsp-ui lsp-mode rustic use-package flycheck-rust rust-mode nginx-mode emmet-mode yasnippet markdown-preview-mode markdown-mode js2-highlight-vars json-mode js2-mode jinja2-mode multiple-cursors magit puppet-mode gnu-elpa-keyring-update company)))
+	(all-the-icons-dired all-the-icons-ivy all-the-icons-ivy-rich company csproj-mode diff-hl direx docker-compose-mode dockerfile-mode dumb-jump elpy emmet-mode exec-path-from-shell flycheck-pycheckers flycheck-rust flymake-eslint flymake-python-pyflakes fold-this gnu-elpa-keyring-update go-mode jedi jinja2-mode js2-highlight-vars js2-mode json-mode lsp-mode lsp-ui magit markdown-mode markdown-preview-mode multiple-cursors nginx-mode omnisharp org puppet-mode rust-mode rustic tide use-package web-mode yasnippet)))
  '(safe-local-variable-values (quote ((flycheck-checker . pycodestyle)))))
 
 ;; ───────────────────────────────────────────────────────────────────────── ;;
@@ -309,7 +398,11 @@
  '(mode-line-highlight ((t (:box (:line-width 2 :color "grey40" :style released-button)))))
  '(mode-line-inactive ((t (:inherit mode-line :foreground "color-243" :box (:line-width -1 :color "grey40") :weight light))))
  '(my-linum-hl ((t (:foreground "color-220"))))
+ '(org-block ((t (:foreground "color-255"))))
+ '(org-date ((t (:foreground "color-220" :underline t))))
+ '(org-table ((t (:foreground "color-214"))))
  '(region ((t (:inverse-video t))))
+ '(secondary-selection ((t (:background "color-237"))))
  '(show-paren-match ((t (:foreground "#00FF00"))))
  '(show-paren-mismatch ((t (:foreground "#FF00FF"))))
  '(trailing-whitespace ((t (:background "brightred"))))
@@ -359,7 +452,7 @@
 (yas-reload-all)
 (yas-global-mode)
 
-;; To enable famous emmet completion for html documents.
+;; To enable emmet completion for html documents.
 ;;
 ;;    M-x install-packages ENT emmet-mode
 ;;
@@ -374,8 +467,6 @@
 (add-to-list 'load-path "~/.emacs.d/elpa/crontab-mode-20210715.133/")
 (load "crontab-mode")
 (add-to-list 'auto-mode-alist '("\\crontab\\'" . crontab-mode))
-
-;; (add-hook 'nginx-mode-hook (lambda () (setq-local indent-tabs-mode t)))
 
 ;; (add-to-list 'auto-mode-alist '("\\.jsx$" . web-mode))
 ;; (require 'flycheck)
@@ -467,5 +558,9 @@
 
 ;; formats the buffer before saving
 (add-hook 'before-save-hook 'tide-format-before-save)
-
 (add-hook 'typescript-mode-hook #'setup-tide-mode)
+
+;; Ivy mode configs.
+(ivy-mode 1)
+(setq ivy-use-virtual-buffers t)
+(setq ivy-count-format "(%d/%d) ")
