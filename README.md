@@ -21,3 +21,5 @@ The currently installed packages are the following:
 - systemd             Major mode for editing systemd units
 - yasnippet           Yet another snippet extension for Emacs
 - yaml-mode           Major mode for editing YAML files
+
+Work In progress...
