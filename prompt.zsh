@@ -29,9 +29,11 @@ parse_git_branch() {
     local added=0 modified=0 deleted=0 untracked=0 renamed=0 ahead=0 behind=0 stash_count=0
     local dir_len space_str output branch git_status
     local in_git_repo=false
+    local -a stash_list
+    stash_list=("${(f)$(git stash list 2>/dev/null)}")
+    stash=${#stash_list[@]}
     dir_len=${#PWD##*/}
     space_str=$(printf ' %.0s' $(seq 0 $((dir_len + 2))))
-    stash=${#${(f)"$(git stash list 2>/dev/null)"}}
     git_status=("${(@f)$(git status --porcelain=2 --branch 2>/dev/null)}")
     if [[ -n "$git_status" ]]; then
         in_git_repo=true
