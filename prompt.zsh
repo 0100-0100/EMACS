@@ -1,36 +1,27 @@
 setopt PROMPT_SUBST
 autoload -U colors && colors
 
-# --- Colors ---
-RESET="%{\033[0m%}"
+# --- General Colors ---
+RST_COLOR=$'%{\033[0m%}' DIR_COLOR=$'%{\033[38;5;246m%}' SYM_COLOR=$'%{\033[38;5;220m%}' OK__COLOR=$'%{\033[38;5;49m%}'
+BAD_COLOR=$'%{\033[38;5;196m%}'
 
-DIR_COLOR="%{\033[38;5;246m%}"
-SYM_COLOR="%{\033[38;5;220m%}"
-OK_COLOR="%{\033[38;5;49m%}"
-BAD_COLOR="%{\033[38;5;196m%}"
-
-ADDED_COLOR="%{\033[38;5;46m%}"
-MODIFIED_COLOR="%{\033[38;5;214m%}"
-DELETED_COLOR="%{\033[38;5;196m%}"
-UNTRACKED_COLOR="%{\033[38;5;250m%}"
-RENAMED_COLOR="%{\033[38;5;33m%}"
-HEAD_COLOR="%{\033[38;5;69m%}"
+# --- Git Status Colors.
+ADDED_____COLOR=$'%{\033[38;5;46m%}'  MODIFIED__COLOR=$'%{\033[38;5;214m%}' DELETED___COLOR=$'%{\033[38;5;196m%}'
+UNTRACKED_COLOR=$'%{\033[38;5;250m%}' RENAMED___COLOR=$'%{\033[38;5;33m%}'  COMMITS___COLOR=$'%{\033[38;5;69m%}'
+STASH_____COLOR=$'%{\033[38;5;200m%}'
 
 # --- Unicode Symbols ---
-SYM_ADDED="+"
-SYM_MODIFIED="~"
-SYM_DELETED="-"
-SYM_UNTRACKED="?"
-SYM_RENAMED="→"
-SYM_UP="↑"
-SYM_DOWN="↓"
+SYM_____ADDED="+" SYM__MODIFIED="~" SYM___DELETED="-" SYM_UNTRACKED="?" SYM___RENAMED="→" SYM________UP="↑" SYM______DOWN="↓"
+SYM_____STASH="≡"
 
 # --- Functions ---
 parse_git_branch() {
-    local dir_len space_str output branch git_status in_git_repo=false added=0 modified=0 deleted=0 untracked=0 renamed=0 ahead=0 behind=0
+    local added=0 modified=0 deleted=0 untracked=0 renamed=0 ahead=0 behind=0 stash_count=0
+    local dir_len space_str output branch git_status
+    local in_git_repo=false
     dir_len=${#PWD##*/}
     space_str=$(printf ' %.0s' $(seq 0 $((dir_len + 2))))
-
+    stash=${#${(f)"$(git stash list 2>/dev/null)"}}
     git_status=("${(@f)$(git status --porcelain=2 --branch 2>/dev/null)}")
     if [[ -n "$git_status" ]]; then
         in_git_repo=true
@@ -38,55 +29,39 @@ parse_git_branch() {
 
     if $in_git_repo; then
 
-        # Parse branch name from the first line
         for line in "${git_status[@]}"; do
-            if [[ "$line" == "# branch.head "* ]]; then
-                branch="${line#"# branch.head "}"
-                break
-            fi
-        done
-
-        # Parse status entries
-        for line in "${git_status[@]}"; do
-            case "$line" in
-                (\# branch.ab*ahead*)
-                    [[ "$line" =~ ahead[[:space:]]([0-9]+) ]] && ahead=${match[1]}
-                    [[ "$line" =~ behind[[:space:]]([0-9]+) ]] && behind=${match[1]}
-                    ;;
-                (1\ M\.*)
-                    (( added++ ))
-                    ;;
-                (1\ \.M*)
-                    (( modified++ ))
-                    ;;
-                (1\ \.D*)
-                    (( deleted++ ))
-                    ;;
-                (\?*)
-                    (( untracked++ ))
-                    ;;
-                (2\ *)
-                    (( renamed++ ))
-                    ;;
-            esac
+            # In the case a file was added and also modified this will catch it and add to both counts
+            # A case statement would not.
+            [[ "$line" == "# branch.head "* ]]          && branch="${line#"# branch.head "}"
+            [[ "$line" == "# branch.ab "* ]] && {
+                local ahead_behind
+                ahead_behind=(${(s: :)${line#"# branch.ab "}})
+                [[ $ahead_behind[1] == +* ]] && ahead=${ahead_behind[1]#\+}
+                [[ $ahead_behind[2] == -* ]] && behind=${ahead_behind[2]#-}
+            }
+            [[ "$line" =~ "^1\ A.+|^1\ M.+" ]]          && (( added++ ));
+            [[ "$line" =~ "^1\ .M.+" ]]                 && (( modified++ ));
+            [[ "$line" =~ "^1\ \.D.+" ]]                && (( deleted++));
+            [[ "$line" =~ "^\?.+" ]]                    && (( untracked++ ));
+            [[ "$line" =~ "^2\ .+" ]]                   && (( renamed++ ));
         done
 
         output=""
-        [[ $added     -gt 0 ]] && output+="${ADDED_COLOR}${SYM_ADDED}${added} "
-        [[ $modified  -gt 0 ]] && output+="${MODIFIED_COLOR}${SYM_MODIFIED}${modified} "
-        [[ $deleted   -gt 0 ]] && output+="${DELETED_COLOR}${SYM_DELETED}${deleted} "
+        [[ $added     -gt 0 ]] && output+="${ADDED_____COLOR}${SYM_____ADDED}${added} "
+        [[ $modified  -gt 0 ]] && output+="${MODIFIED__COLOR}${SYM__MODIFIED}${modified} "
+        [[ $deleted   -gt 0 ]] && output+="${DELETED___COLOR}${SYM___DELETED}${deleted} "
         [[ $untracked -gt 0 ]] && output+="${UNTRACKED_COLOR}${SYM_UNTRACKED}${untracked} "
-        [[ $renamed   -gt 0 ]] && output+="${RENAMED_COLOR}${SYM_RENAMED}${renamed} "
-        [[ $ahead     -gt 0 ]] && output+="${HEAD_COLOR}${SYM_UP}${ahead} "
-        [[ $behind    -gt 0 ]] && output+="${HEAD_COLOR}${SYM_DOWN}${behind} "
+        [[ $renamed   -gt 0 ]] && output+="${RENAMED___COLOR}${SYM___RENAMED}${renamed} "
+        [[ $ahead     -gt 0 ]] && output+="${COMMITS___COLOR}${SYM________UP}${ahead} "
+        [[ $behind    -gt 0 ]] && output+="${COMMITS___COLOR}${SYM______DOWN}${behind} "
+        [[ $stash     -gt 0 ]] && output+="${STASH_____COLOR}${SYM_____STASH}${stash} "
 
+        # If Python virtual environment.
         if [ -n "$VIRTUAL_ENV" ]; then
-            echo "%{${space_str}${SYM_COLOR}╭─ ${OK_COLOR}${branch}${RESET} ${output}${RESET}\r${OK_COLOR}(venv)${RESET}\n\r%}"
+            echo "%{${space_str}${SYM_COLOR}╭─ ${OK__COLOR}${branch}${RST_COLOR} ${output}${RST_COLOR}\r${OK__COLOR}(venv)${RST_COLOR}\n\r%}"
         else
-            # echo "No virtual environment is active."
-            echo "%{${space_str}${SYM_COLOR}╭─ ${OK_COLOR}${branch}${RESET} ${output}${RESET}\n\r%}"
+            echo "%{${space_str}${SYM_COLOR}╭─ ${OK__COLOR}${branch}${RST_COLOR} ${output}${RST_COLOR}\n\r%}"
         fi
-        # echo "%{${space_str}${SYM_COLOR}╭─ ${OK_COLOR}${branch}${RESET} ${output}${RESET}\n\r%}"
     fi
 }
 
@@ -94,27 +69,12 @@ set_prompt() {
     local git_info prompt_symbol
 
     git_info=$(parse_git_branch)
-    # PROMPT="${git_info}%1~ │ "
-    # PS1="${git_info}%1~ │ "
-    # PS1="${git_info}${DIR_COLOR}%1~ ${prompt_symbol} ${SYM_COLOR}│${RESET} "
-    # PROMPT="${git_info}${DIR_COLOR}%1~ ${prompt_symbol} ${SYM_COLOR}│${RESET} "
-    PROMPT="${git_info}"
-    PROMPT+=$'%{\033[38;5;246m%}'
-    PROMPT+="%1~ "
-    PROMPT+=$'%{\033[0m%}'
     if [[ $EUID -eq 0 ]]; then
-        PROMPT+=$'%{\033[38;5;196m%}'
-        PROMPT+="%#"
-        PROMPT+=$'%{\033[0m%}'
+        prompt_symbol="${BAD_COLOR} %#${RST_COLOR}"
     else
-        PROMPT+=$'%{\033[38;5;49m%}'
-        PROMPT+="%#"
-        PROMPT+=$'%{\033[0m%}'
+        prompt_symbol="${OK__COLOR} %#${RST_COLOR}"
     fi
-    PROMPT+=$'%{\033[38;5;220m%}'
-    PROMPT+=" │ "
-    PROMPT+=$'%{\033[0m%}'
-    # (OPTIONAL) RPROMPT="HELLLO!!!"
+    PROMPT="${git_info}${DIR_COLOR}%1~${prompt_symbol} ${SYM_COLOR}│${RST_COLOR} "
 }
 
 precmd_functions=(set_prompt)
