@@ -1,18 +1,28 @@
-setopt PROMPT_SUBST
-autoload -U colors && colors
-
 # --- General Colors ---
-RST_COLOR=$'%{\033[0m%}' DIR_COLOR=$'%{\033[38;5;246m%}' SYM_COLOR=$'%{\033[38;5;220m%}' OK__COLOR=$'%{\033[38;5;49m%}'
+RST_COLOR=$'%{\033[0m%}'
 BAD_COLOR=$'%{\033[38;5;196m%}'
+DIR_COLOR=$'%{\033[38;5;246m%}'
+OK__COLOR=$'%{\033[38;5;49m%}'
+SYM_COLOR=$'%{\033[38;5;220m%}'
 
 # --- Git Status Colors.
-ADDED_____COLOR=$'%{\033[38;5;46m%}'  MODIFIED__COLOR=$'%{\033[38;5;214m%}' DELETED___COLOR=$'%{\033[38;5;196m%}'
-UNTRACKED_COLOR=$'%{\033[38;5;250m%}' RENAMED___COLOR=$'%{\033[38;5;33m%}'  COMMITS___COLOR=$'%{\033[38;5;69m%}'
+ADDED_____COLOR=$'%{\033[38;5;46m%}'
+COMMITS___COLOR=$'%{\033[38;5;69m%}'
+DELETED___COLOR=$'%{\033[38;5;196m%}'
+MODIFIED__COLOR=$'%{\033[38;5;214m%}'
+RENAMED___COLOR=$'%{\033[38;5;33m%}'
 STASH_____COLOR=$'%{\033[38;5;200m%}'
+UNTRACKED_COLOR=$'%{\033[38;5;250m%}'
 
 # --- Unicode Symbols ---
-SYM_____ADDED="+" SYM__MODIFIED="~" SYM___DELETED="-" SYM_UNTRACKED="?" SYM___RENAMED="→" SYM________UP="↑" SYM______DOWN="↓"
+SYM_UNTRACKED="?"
+SYM__MODIFIED="~"
+SYM___DELETED="-"
+SYM___RENAMED="→"
+SYM_____ADDED="+"
 SYM_____STASH="≡"
+SYM______DOWN="↓"
+SYM________UP="↑"
 
 # --- Functions ---
 parse_git_branch() {
